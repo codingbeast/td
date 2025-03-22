@@ -124,10 +124,10 @@ class USER_SETUP:
 class UTILITY:
     def __init__(self) -> None:
         self.base_log_folder = self.get_log_folder()
-
     def get_log_folder(self):
+        """Set log path dynamically for local and GitHub Actions"""
         if os.getenv('GITHUB_ACTIONS') == 'true':
-            base_folder = os.getenv('GITHUB_WORKSPACE', '/home/runner/work')
+            base_folder = os.getenv('GITHUB_WORKSPACE', '/home/runner/work/td/td')
             log_folder = os.path.join(base_folder, 'gold_log')
         else:
             log_folder = os.path.join(os.path.expanduser('~'), "gold_log")
