@@ -50,6 +50,8 @@ jobs:
 
   sell:
     runs-on: ubuntu-latest
+    needs: buy  # ✅ Wait for 'buy' to complete successfully
+    if: success()  # ✅ Only run if 'buy' succeeds
     env:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
