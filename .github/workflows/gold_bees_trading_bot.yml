@@ -2,12 +2,19 @@ name: Goldbees Trading Automation
 
 on:
   schedule:
-    - cron: '0 8 * * 1-5'  # Runs at 8 AM Mon-Fri
-  workflow_dispatch:
+    - cron: '0 8 * * 1-5'   # Runs at 8:00 AM Mon-Fri for buy
+    - cron: '1 8 * * 1-5'   # Runs at 8:01 AM Mon-Fri for sell
+  workflow_dispatch:        # Manual trigger for both buy and sell
 
 jobs:
-  trade:
+  buy:
     runs-on: ubuntu-latest
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
+      ZERODHA_USER_ID: ${{ secrets.ZERODHA_USER_ID }}
+      ZERODHA_USER_PASSWORD: ${{ secrets.ZERODHA_USER_PASSWORD }}
+      ZERODHA_TPIN_TOKEN: ${{ secrets.ZERODHA_TPIN_TOKEN }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -17,10 +24,41 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: List files for debugging
+        run: ls -R
+
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
 
-      - name: Run Trading Script
+      - name: Run Buy Operation
         run: |
-          python3 gold_trading.py --buy
+          python3 gold/gold_trading.py --buy
+
+  sell:
+    runs-on: ubuntu-latest
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
+      ZERODHA_USER_ID: ${{ secrets.ZERODHA_USER_ID }}
+      ZERODHA_USER_PASSWORD: ${{ secrets.ZERODHA_USER_PASSWORD }}
+      ZERODHA_TPIN_TOKEN: ${{ secrets.ZERODHA_TPIN_TOKEN }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: List files for debugging
+        run: ls -R
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Sell Operation
+        run: |
+          python3 gold/gold_trading.py --sell
