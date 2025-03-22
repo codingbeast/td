@@ -36,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: gold_logs_buy
-          path: /home/runner/work/td/td/gold_log/
+          path: ${{ github.workspace }}/gold_log/
 
   sell:
     runs-on: ubuntu-latest
@@ -67,4 +67,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: gold_logs_sell
-          path: /home/runner/work/td/td/gold_log/
+          path: ${{ github.workspace }}/gold_log/
