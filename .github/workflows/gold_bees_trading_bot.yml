@@ -33,7 +33,7 @@ jobs:
           python3 gold/gold_trading.py --buy
 
       - name: Upload Logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gold_logs_buy
           path: /home/runner/work/td/td/gold_log/
@@ -64,7 +64,7 @@ jobs:
           python3 gold/gold_trading.py --sell
 
       - name: Upload Logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gold_logs_sell
           path: /home/runner/work/td/td/gold_log/
