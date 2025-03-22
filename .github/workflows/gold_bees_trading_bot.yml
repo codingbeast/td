@@ -28,23 +28,25 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      # ✅ Attempt to download logs (bypass if not available)
-      - name: Download Previous Logs
-        uses: actions/download-artifact@v4
+      # ✅ Restore logs using cache
+      - name: Restore Previous Logs
+        uses: actions/cache@v3
         with:
-          name: gold_logs_buy
           path: ${{ github.workspace }}/gold_log/
-        continue-on-error: true  # Bypass error if artifact is not available
+          key: gold_logs_cache
+          restore-keys: |
+            gold_logs_cache
 
       - name: Run Buy Operation
         run: |
           python3 gold/gold_trading.py --buy
 
-      - name: Upload Logs
-        uses: actions/upload-artifact@v4
+      # ✅ Cache updated logs after running
+      - name: Cache Updated Logs
+        uses: actions/cache@v3
         with:
-          name: gold_logs_buy
           path: ${{ github.workspace }}/gold_log/
+          key: gold_logs_cache
 
   sell:
     runs-on: ubuntu-latest
@@ -67,20 +69,22 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      # ✅ Attempt to download logs (bypass if not available)
-      - name: Download Previous Logs
-        uses: actions/download-artifact@v4
+      # ✅ Restore logs using cache
+      - name: Restore Previous Logs
+        uses: actions/cache@v3
         with:
-          name: gold_logs_sell
           path: ${{ github.workspace }}/gold_log/
-        continue-on-error: true  # Bypass error if artifact is not available
+          key: gold_logs_cache
+          restore-keys: |
+            gold_logs_cache
 
       - name: Run Sell Operation
         run: |
           python3 gold/gold_trading.py --sell
 
-      - name: Upload Logs
-        uses: actions/upload-artifact@v4
+      # ✅ Cache updated logs after running
+      - name: Cache Updated Logs
+        uses: actions/cache@v3
         with:
-          name: gold_logs_sell
           path: ${{ github.workspace }}/gold_log/
+          key: gold_logs_cache
