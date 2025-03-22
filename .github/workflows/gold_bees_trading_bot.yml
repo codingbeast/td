@@ -28,12 +28,13 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      # ✅ Download previous logs before running the buy script
+      # ✅ Attempt to download logs (bypass if not available)
       - name: Download Previous Logs
         uses: actions/download-artifact@v4
         with:
           name: gold_logs_buy
           path: ${{ github.workspace }}/gold_log/
+        continue-on-error: true  # Bypass error if artifact is not available
 
       - name: Run Buy Operation
         run: |
@@ -66,12 +67,13 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      # ✅ Download previous logs before running the sell script
+      # ✅ Attempt to download logs (bypass if not available)
       - name: Download Previous Logs
         uses: actions/download-artifact@v4
         with:
           name: gold_logs_sell
           path: ${{ github.workspace }}/gold_log/
+        continue-on-error: true  # Bypass error if artifact is not available
 
       - name: Run Sell Operation
         run: |
