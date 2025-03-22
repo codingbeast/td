@@ -21,6 +21,7 @@ logger = log.logger
 STOCK = {
     "ticker": "GOLDBEES",
     "stock": "GOLDBEES",
+    "min_sell_qnt" : 20,
     "amount": 100,
     "reduce": 0.30,
     "ISBUY": True
@@ -220,6 +221,8 @@ class GOLDSELL(UTILITY, USER_SETUP):
         buyingPrice = float(getgoldHolding['average_price'])
         targetPrice = buyingPrice * 1.02
         totalQuantity = int(getgoldHolding['opening_quantity'])
+        if totalQuantity < stock['min_sell_qnt']:
+            return False
         self.cancelOrder(stock_code, kite, False)
         order_id = kite.place_order(
             tradingsymbol=stock_code,
