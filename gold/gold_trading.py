@@ -45,7 +45,7 @@ class GoogleDriveLogger:
     def _get_service_account_file(self):
         """Handle service account from either env var or file"""
         # Check for encoded JSON in environment variable (GitHub Actions)
-        if encoded_json := os.getenv('SERVICE_ACCOUNT'):
+        if encoded_json := os.getenv('GOOGLE_SERVICE_ACCOUNT_BASE64'):
             try:
                 json_content = base64.b64decode(encoded_json).decode('utf-8')
                 temp_file = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json')
