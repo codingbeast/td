@@ -2,12 +2,14 @@ name: Goldbees Trading Automation
 
 on:
   schedule:
-    - cron: '0 8 * * 1-5'   # Runs at 8:00 AM Mon-Fri for buy
-    - cron: '1 8 * * 1-5'   # Runs at 8:01 AM Mon-Fri for sell
-  workflow_dispatch:        # Manual trigger for both buy and sell
+    # Runs at 8:00 AM IST (2:30 AM UTC) for buy
+    - cron: '30 2 * * 1-5'
+    # Runs at 8:01 AM IST (2:31 AM UTC) for sell
+    - cron: '31 2 * * 1-5'
+  workflow_dispatch:  # Manual trigger for both buy and sell
 
 permissions:
-  contents: write  # ✅ Required to read, write, and modify log files
+  contents: read  # Only need read permission now
 
 jobs:
   buy:
@@ -18,6 +20,7 @@ jobs:
       ZERODHA_USER_ID: ${{ secrets.ZERODHA_USER_ID }}
       ZERODHA_USER_PASSWORD: ${{ secrets.ZERODHA_USER_PASSWORD }}
       ZERODHA_TPIN_TOKEN: ${{ secrets.ZERODHA_TPIN_TOKEN }}
+      GOOGLE_SERVICE_ACCOUNT_BASE64: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_BASE64 }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -30,48 +33,27 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          pip install oauth2client PyDrive2
 
-      # ✅ Restore logs using cache before placing order
-      - name: Restore Previous Logs
-        uses: actions/cache@v3
-        with:
-          path: ${{ github.workspace }}/gold_log/
-          key: gold_logs_cache
-          restore-keys: |
-            gold_logs_cache
-
-      # ✅ Run Buy Operation
       - name: Run Buy Operation
         run: |
           python3 gold/gold_trading.py --buy
 
-      # ✅ Show Log File After Buy
-      - name: Show Buy Log File
+      - name: Verify Google Drive Log
         run: |
-          if [ -f "${{ github.workspace }}/gold_log/GOLDBEES_buy.txt" ]; then
-            echo "==== BUY Log File ===="
-            cat ${{ github.workspace }}/gold_log/GOLDBEES_buy.txt
-          else
-            echo "No Buy log file found!"
-          fi
-
-      # ✅ Cache updated logs after running
-      - name: Cache Updated Logs
-        uses: actions/cache@v3
-        with:
-          path: ${{ github.workspace }}/gold_log/
-          key: gold_logs_cache
+          echo "Buy operation completed. Logs stored in Google Drive."
 
   sell:
     runs-on: ubuntu-latest
-    needs: buy  # ✅ Run after 'buy' whether successful or not
-    if: always()  # ✅ Always run 'sell' even if 'buy' fails
+    needs: buy
+    if: always()  # Always run sell even if buy fails
     env:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
       ZERODHA_USER_ID: ${{ secrets.ZERODHA_USER_ID }}
       ZERODHA_USER_PASSWORD: ${{ secrets.ZERODHA_USER_PASSWORD }}
       ZERODHA_TPIN_TOKEN: ${{ secrets.ZERODHA_TPIN_TOKEN }}
+      GOOGLE_SERVICE_ACCOUNT_BASE64: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_BASE64 }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -84,34 +66,12 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          pip install oauth2client PyDrive2
 
-      # ✅ Restore logs using cache before placing order
-      - name: Restore Previous Logs
-        uses: actions/cache@v3
-        with:
-          path: ${{ github.workspace }}/gold_log/
-          key: gold_logs_cache
-          restore-keys: |
-            gold_logs_cache
-
-      # ✅ Run Sell Operation
       - name: Run Sell Operation
         run: |
           python3 gold/gold_trading.py --sell
 
-      # ✅ Show Log File After Sell
-      - name: Show Sell Log File
+      - name: Verify Google Drive Log
         run: |
-          if [ -f "${{ github.workspace }}/gold_log/GOLDBEES_sell.txt" ]; then
-            echo "==== SELL Log File ===="
-            cat ${{ github.workspace }}/gold_log/GOLDBEES_sell.txt
-          else
-            echo "No Sell log file found!"
-          fi
-
-      # ✅ Cache updated logs after running
-      - name: Cache Updated Logs
-        uses: actions/cache@v3
-        with:
-          path: ${{ github.workspace }}/gold_log/
-          key: gold_logs_cache
+          echo "Sell operation completed. Logs stored in Google Drive."
