@@ -8,11 +8,17 @@ import math
 from jugaad_trader import Zerodha
 from algoconnectorhelper.telegram.message_sender import send_message
 from algoconnectorhelper.zerodha.connect_zerodha import getKite
+from oauth2client.service_account import ServiceAccountCredentials
+from pydrive2.auth import GoogleAuth
+from pydrive2.drive import GoogleDrive
+import os
 from mycolorlogger.mylogger import log
 from crontab import CronTab
 import subprocess
 import pandas as pd
 import getpass
+import base64
+import tempfile
 from pathlib import Path
 from typing import Dict
 import sys
@@ -27,6 +33,116 @@ STOCK = {
     "ISBUY": True
 }
 
+
+class GoogleDriveLogger:
+    def __init__(self, folder_name="trading_log", service_account_file="service_account.json"):
+        self.service_account_file = self._get_service_account_file()
+        self.folder_name = folder_name
+        self._authenticate()
+        self.drive = GoogleDrive(self.gauth)
+        self.folder_id = self._get_or_create_folder()
+        
+    def _get_service_account_file(self):
+        """Handle service account from either env var or file"""
+        # Check for encoded JSON in environment variable (GitHub Actions)
+        if encoded_json := os.getenv('SERVICE_ACCOUNT'):
+            try:
+                json_content = base64.b64decode(encoded_json).decode('utf-8')
+                temp_file = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json')
+                temp_file.write(json_content)
+                temp_file.close()
+                return temp_file.name
+            except Exception as e:
+                logger.error(f"Failed to decode service account: {e}")
+                raise
+
+        # Check for direct JSON content (alternative approach)
+        if json_content := os.getenv('SERVICE_ACCOUNT_JSON'):
+            try:
+                temp_file = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json')
+                json.dump(json.loads(json_content), temp_file)
+                temp_file.close()
+                return temp_file.name
+            except Exception as e:
+                logger.error(f"Failed to parse JSON service account: {e}")
+                raise
+
+        # Fallback to local file (development)
+        local_file = "service_account.json"
+        if os.path.exists(local_file):
+            return local_file
+            
+        raise FileNotFoundError("No Google Service Account configuration found")
+    def _authenticate(self):
+        """Authenticate using service account credentials"""
+        self.gauth = GoogleAuth()
+        scope = ["https://www.googleapis.com/auth/drive"]
+        self.gauth.credentials = ServiceAccountCredentials.from_json_keyfile_name(
+            self.service_account_file, 
+            scope
+        )
+    
+    def _get_or_create_folder(self):
+        """Get or create the log folder in Google Drive"""
+        # Check if folder exists
+        query = f"title='{self.folder_name}' and mimeType='application/vnd.google-apps.folder' and trashed=false"
+        file_list = self.drive.ListFile({'q': query}).GetList()
+        
+        if file_list:
+            return file_list[0]['id']
+        else:
+            # Create folder if it doesn't exist
+            folder = self.drive.CreateFile({
+                'title': self.folder_name,
+                'mimeType': 'application/vnd.google-apps.folder'
+            })
+            folder.Upload()
+            return folder['id']
+    
+    def _get_file_id(self, filename):
+        """Get file ID if it exists"""
+        query = f"title='{filename}' and '{self.folder_id}' in parents and trashed=false"
+        file_list = self.drive.ListFile({'q': query}).GetList()
+        return file_list[0]['id'] if file_list else None
+    
+    def write_file(self, filename, content):
+        file_id = self._get_file_id(filename)
+        
+        if file_id:
+            # Update existing file
+            file = self.drive.CreateFile({'id': file_id})
+            file.SetContentString(content)
+            file.Upload()
+        else:
+            # Create new file
+            file = self.drive.CreateFile({
+                'title': filename,
+                'parents': [{'id': self.folder_id}]
+            })
+            file.SetContentString(content)
+            file.Upload()
+    
+    def read_file(self, filename):
+        file_id = self._get_file_id(filename)
+        if not file_id:
+            return None
+            
+        file = self.drive.CreateFile({'id': file_id})
+        content = file.GetContentString()
+        return content
+    
+    def delete_file(self, filename):
+        file_id = self._get_file_id(filename)
+        if not file_id:
+            return False
+            
+        file = self.drive.CreateFile({'id': file_id})
+        file.Delete()
+        return True
+    
+    def file_exists(self, filename):
+        return self._get_file_id(filename) is not None
+    
 class USER_SETUP:
     def __init__(self) -> None:
         super().__init__()  # Initialize USER_SETUP class
@@ -35,22 +151,18 @@ class USER_SETUP:
         self.ZERODHA_USER_ID = os.environ.get('ZERODHA_USER_ID', None)
         self.ZERODHA_USER_PASSWORD = os.environ.get('ZERODHA_USER_PASSWORD', None)
         self.ZERODHA_TPIN_TOKEN = os.environ.get('ZERODHA_TPIN_TOKEN', None)
-        self.base_log_folder = self.get_log_folder()
-
-    def get_log_folder(self):
-        """Set log path dynamically for local and GitHub Actions"""
-        if os.getenv('GITHUB_ACTIONS') == 'true':
-            base_folder = os.getenv('GITHUB_WORKSPACE', '/home/runner/work')
-            log_folder = os.path.join(base_folder, 'gold_log')
-        else:
-            log_folder = os.path.join(os.path.expanduser('~'), "gold_log")
-
-        Path(log_folder).mkdir(parents=True, exist_ok=True)
-        return log_folder
+        # Initialize Google Drive logger
+        self.drive_logger = GoogleDriveLogger(service_account_file="service_account.json")
 
     @property
     def isSetupDone(self):
-        return os.path.exists(self.base_log_folder)
+        # Check if we can access Google Drive
+        try:
+            self.drive_logger._authenticate()
+            return True
+        except Exception as e:
+            logger.error(f"Google Drive setup failed: {e}")
+            return False
 
     def startSetup(self):
         Path(self.base_log_folder).mkdir(parents=True, exist_ok=True)
@@ -90,30 +202,28 @@ class USER_SETUP:
             return False
 
     def logWriterOrder(self, productID, stock_code, isbuy):
-        filename = os.path.join(self.base_log_folder, f'{stock_code}_{"buy" if isbuy else "sell"}.txt')
-        with open(filename, 'w') as f:
-            f.write(str(productID))
+        filename = f'{stock_code}_{"buy" if isbuy else "sell"}.txt'
+        self.drive_logger.write_file(filename, str(productID))
         return True
 
     def logWriterGtt(self, productID, stock_code, isbuy):
-        filename = os.path.join(self.base_log_folder, f'{stock_code}_{"buy_gtt" if isbuy else "sell_gtt"}.txt')
-        with open(filename, 'w') as f:
-            f.write(str(productID))
+        filename = f'{stock_code}_{"buy_gtt" if isbuy else "sell_gtt"}.txt'
+        self.drive_logger.write_file(filename, str(productID))
 
     def cancelOrder(self, stock_code, kite: Zerodha, isbuy):
-        filename = os.path.join(self.base_log_folder, f'{stock_code}_{"buy" if isbuy else "sell"}.txt')
-        if not os.path.isfile(filename):
+        filename = f'{stock_code}_{"buy" if isbuy else "sell"}.txt'
+        if not self.drive_logger.file_exists(filename):
             return False
-        with open(filename, 'r') as f:
-            productID = f.read()
-            gtt_order_id = int(productID)
+            
+        productID = self.drive_logger.read_file(filename)
+        gtt_order_id = int(productID)
 
         try:
             kite.cancel_order(order_id=gtt_order_id, variety=kite.VARIETY_AMO)
         except Exception:
             pass
 
-        os.remove(filename)
+        self.drive_logger.delete_file(filename)
         return True
 
     @property
@@ -124,17 +234,7 @@ class USER_SETUP:
 
 class UTILITY:
     def __init__(self) -> None:
-        self.base_log_folder = self.get_log_folder()
-    def get_log_folder(self):
-        """Set log path dynamically for local and GitHub Actions"""
-        if os.getenv('GITHUB_ACTIONS') == 'true':
-            base_folder = os.getenv('GITHUB_WORKSPACE', '/home/runner/work/td/td')
-            log_folder = os.path.join(base_folder, 'gold_log')
-        else:
-            log_folder = os.path.join(os.path.expanduser('~'), "gold_log")
-
-        Path(log_folder).mkdir(parents=True, exist_ok=True)
-        return log_folder
+        pass
 
     def stockTodayClosePrice(self, stock):
         logger.info(f"Fetching data from -> {stock}")

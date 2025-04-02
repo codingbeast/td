@@ -4,3 +4,5 @@ jugaad_data
 mycolorlogger
 pandas
 python_crontab
+oauth2client
+PyDrive2
