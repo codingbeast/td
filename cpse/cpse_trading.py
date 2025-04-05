@@ -18,50 +18,159 @@ import argparse
 from pathlib import Path
 from typing import Dict
 import math, sys
+import base64
+import tempfile
+from oauth2client.service_account import ServiceAccountCredentials
+from pydrive2.auth import GoogleAuth
+from pydrive2.drive import GoogleDrive
+
 logger = log.logger
 
 
 UPTRAND_PRICE = 8000
 DOWNTRAND_PRICE = 10000
 
+class GoogleDriveLogger:
+    def __init__(self, folder_name="trading_log", service_account_file="service_account.json"):
+        self.service_account_file = self._get_service_account_file()
+        self.folder_name = folder_name
+        self._authenticate()
+        self.drive = GoogleDrive(self.gauth)
+        self.folder_id = self._get_or_create_folder()
+        
+    def _get_service_account_file(self):
+        """Handle service account from either env var or file"""
+        # Check for encoded JSON in environment variable
+        if encoded_json := os.getenv('GOOGLE_SERVICE_ACCOUNT_BASE64'):
+            try:
+                json_content = base64.b64decode(encoded_json).decode('utf-8')
+                temp_file = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json')
+                temp_file.write(json_content)
+                temp_file.close()
+                return temp_file.name
+            except Exception as e:
+                logger.error(f"Failed to decode service account: {e}")
+                raise
+
+        # Check for direct JSON content
+        if json_content := os.getenv('SERVICE_ACCOUNT_JSON'):
+            try:
+                temp_file = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json')
+                json.dump(json.loads(json_content), temp_file)
+                temp_file.close()
+                return temp_file.name
+            except Exception as e:
+                logger.error(f"Failed to parse JSON service account: {e}")
+                raise
+
+        # Fallback to local file
+        local_file = "service_account.json"
+        if os.path.exists(local_file):
+            return local_file
+            
+        raise FileNotFoundError("No Google Service Account configuration found")
+
+    def _authenticate(self):
+        """Authenticate using service account credentials"""
+        self.gauth = GoogleAuth()
+        scope = ["https://www.googleapis.com/auth/drive"]
+        self.gauth.credentials = ServiceAccountCredentials.from_json_keyfile_name(
+            self.service_account_file, 
+            scope
+        )
+    
+    def _get_or_create_folder(self):
+        """Get or create the log folder in Google Drive"""
+        query = f"title='{self.folder_name}' and mimeType='application/vnd.google-apps.folder' and trashed=false"
+        file_list = self.drive.ListFile({'q': query}).GetList()
+        
+        if file_list:
+            return file_list[0]['id']
+        else:
+            folder = self.drive.CreateFile({
+                'title': self.folder_name,
+                'mimeType': 'application/vnd.google-apps.folder'
+            })
+            folder.Upload()
+            return folder['id']
+    
+    def _get_file_id(self, filename):
+        """Get file ID if it exists"""
+        query = f"title='{filename}' and '{self.folder_id}' in parents and trashed=false"
+        file_list = self.drive.ListFile({'q': query}).GetList()
+        return file_list[0]['id'] if file_list else None
+    
+    def write_file(self, filename, content):
+        file_id = self._get_file_id(filename)
+        
+        if file_id:
+            file = self.drive.CreateFile({'id': file_id})
+            file.SetContentString(content)
+            file.Upload()
+        else:
+            file = self.drive.CreateFile({
+                'title': filename,
+                'parents': [{'id': self.folder_id}]
+            })
+            file.SetContentString(content)
+            file.Upload()
+    
+    def read_file(self, filename):
+        file_id = self._get_file_id(filename)
+        if not file_id:
+            return None
+            
+        file = self.drive.CreateFile({'id': file_id})
+        return file.GetContentString()
+    
+    def delete_file(self, filename):
+        file_id = self._get_file_id(filename)
+        if not file_id:
+            return False
+            
+        file = self.drive.CreateFile({'id': file_id})
+        file.Delete()
+        return True
+    
+    def file_exists(self, filename):
+        return self._get_file_id(filename) is not None
+
 class FlagManager:
-    def __init__(self, filename='flag.txt'):
+    def __init__(self, filename='cpse_flag.txt'):
         self.filename = filename
+        self.drive_logger = GoogleDriveLogger()
         self.initialize_file()
 
     def initialize_file(self):
-        try:
-            with open(self.filename, 'r') as file:
-                pass
-        except FileNotFoundError:
+        if not self.drive_logger.file_exists(self.filename):
             # If the file does not exist, create it with 4 True values
-            with open(self.filename, 'w') as file:
-                file.write('True\nTrue\nTrue\nTrue\n')
+            self.drive_logger.write_file(self.filename, 'True\nTrue\nTrue\nTrue\n')
 
     def check_flags(self):
-        with open(self.filename, 'r') as file:
-            flags = file.readlines()
-        flags = [flag.strip() == 'True' for flag in flags]  # Convert to bool
+        content = self.drive_logger.read_file(self.filename)
+        if not content:
+            return False
+            
+        flags = content.splitlines()
+        flags = [flag.strip() == 'True' for flag in flags]
 
-        # Check if all flags are 'False'
         if all(flag == False for flag in flags):
             return False
         return True
 
     def update_flag(self, new_flag):
-        with open(self.filename, 'r') as file:
-            flags = file.readlines()
-        flags = [flag.strip() == 'True' for flag in flags]  # Convert to bool
+        content = self.drive_logger.read_file(self.filename)
+        if not content:
+            return
+            
+        flags = content.splitlines()
+        flags = [flag.strip() == 'True' for flag in flags]
 
-        # Remove the first flag and add the new flag to the end
         flags.pop(0)
         flags.append(new_flag)
 
-        # Write the updated flags back to the file
-        with open(self.filename, 'w') as file:
-            for flag in flags:
-                file.write(f"{str(flag)}\n")
-
+        new_content = '\n'.join(str(flag) for flag in flags)
+        self.drive_logger.write_file(self.filename, new_content)
 class USER_SETUP:
     def __init__(self) -> None:
         super().__init__()  # Initialize USER_SETUP class to access its attributes
@@ -78,16 +187,15 @@ class USER_SETUP:
         # TPIN (Two-factor Personal Token) token for Zerodha authentication
         self.ZERODHA_TPIN_TOKEN = os.environ.get('ZERODHA_TPIN_TOKEN',None)
         # Directory containing the script
-        self.script_dir = os.path.dirname(__file__)
-        # Directory for storing the logs
-        self.base_log_folder = os.path.join(os.path.expanduser('~'),"cpse_log")
-        #self.base_log_folder = os.path.join(self.script_dir, 'log')
-        Path(self.base_log_folder).mkdir(parents=True, exist_ok=True)
+        self.drive_logger = GoogleDriveLogger(service_account_file="service_account.json")
     @property
-    def isSetupDone(self,):
-        if os.path.exists(self.base_log_folder):
+    def isSetupDone(self):
+        try:
+            self.drive_logger._authenticate()
             return True
-        return False
+        except Exception as e:
+            logger.error(f"Google Drive setup failed: {e}")
+            return False
     
     def startSetup(self,):
         Path(self.base_log_folder).mkdir(parents=True, exist_ok=True)
@@ -124,58 +232,48 @@ class USER_SETUP:
             return "check"
         else:
             return False
-    def logWriterOrder(self,productID, stock_code,isbuy):
-        if isbuy:
-            filename = os.path.join(self.base_log_folder, f'{stock_code}_buy.txt')
-        else:
-            filename = os.path.join(self.base_log_folder, f'{stock_code}_sell.txt')
-        with open(filename, 'w') as f:
-            f.write(productID)
+    def logWriterOrder(self, productID, stock_code, isbuy):
+        filename = f'{stock_code}_{"buy" if isbuy else "sell"}.txt'
+        self.drive_logger.write_file(filename, str(productID))
         return True
     
     def logWriterGtt(self, productID, stock_code, isbuy):
-        if isbuy:
-            filename = os.path.join(self.base_log_folder, f'{stock_code}_buy_gtt.txt')
-        else:
-            filename = os.path.join(self.base_log_folder, f'{stock_code}_sell_gtt.txt')
-        with open(filename, 'w') as f:
-            f.write(productID)
+        filename = f'{stock_code}_{"buy_gtt" if isbuy else "sell_gtt"}.txt'
+        self.drive_logger.write_file(filename, str(productID))
 
-    def cancelOrder(self, stock_code, kite : Zerodha, isbuy):
-        # Cancel the buy order for the given stock
-        if isbuy:
-            filename = os.path.join(self.base_log_folder, f'{stock_code}_buy.txt')
-        else:
-            filename = os.path.join(self.base_log_folder, f'{stock_code}_sell.txt')
-        isFileAvailable = os.path.isfile(filename)
-        if not isFileAvailable:
+    def cancelOrder(self, stock_code, kite: Zerodha, isbuy):
+        filename = f'{stock_code}_{"buy" if isbuy else "sell"}.txt'
+        if not self.drive_logger.file_exists(filename):
             return False
-        with open(filename, 'r') as f:
-            productID = f.read()
-            gtt_order_id = int(productID)
+            
+        productID = self.drive_logger.read_file(filename)
+        if not productID:
+            return False
+            
+        gtt_order_id = int(productID)
         try:
-            kite.cancel_order(order_id=gtt_order_id, variety= kite.VARIETY_AMO)
-        except:
+            kite.cancel_order(order_id=gtt_order_id, variety=kite.VARIETY_AMO)
+        except Exception:
             pass
-        os.remove(filename)
+
+        self.drive_logger.delete_file(filename)
         return True
     def cancelGttOrder(self, stock_code, kite, isbuy):
-        if isbuy:
-            filename = os.path.join(self.base_log_folder, f'{stock_code}_buy_gtt.txt')
-        else:
-            filename = os.path.join(self.base_log_folder, f'{stock_code}_sell_gtt.txt')
-        isFileAvailable = os.path.isfile(filename)
-        if not isFileAvailable:
+        filename = f'{stock_code}_{"buy_gtt" if isbuy else "sell_gtt"}.txt'
+        if not self.drive_logger.file_exists(filename):
             return False
-        with open(filename, 'r') as f:
-            productID = f.read()
-            gtt_order_id = int(productID)
-        # Cancel the buy order for the given stock
+            
+        productID = self.drive_logger.read_file(filename)
+        if not productID:
+            return False
+            
+        gtt_order_id = int(productID)
         try:
             kite.cancel_gtt(gtt_id=gtt_order_id)
-        except:
+        except Exception:
             pass
-        os.remove(filename)
+
+        self.drive_logger.delete_file(filename)
         return True
     @property
     def getCurrentTime(self,):
