@@ -9,7 +9,7 @@ This automated trading bot connects to Zerodha's trading platform and provides n
 - GitHub account
 - Zerodha trading account credentials
 - Telegram bot token and user ID
-- Google Service Account credentials (if using Google Sheets integration)
+- Google Service Account credentials (if using Google drive integration for log files)
 
 ## Setup Instructions
 
