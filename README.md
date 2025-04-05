@@ -22,14 +22,14 @@ Add these secrets to your GitHub repository:
 
 #### Required Secrets
 
-| Secret Name                     | Description                                                                 |
-|---------------------------------|-----------------------------------------------------------------------------|
-| `TELEGRAM_BOT_TOKEN`            | Obtain from Telegram's @BotFather                                          |
-| `TELEGRAM_USER_ID`              | Get from @userinfobot on Telegram                                          |
-| `ZERODHA_USER_ID`               | Your Zerodha Kite login ID                                                 |
-| `ZERODHA_USER_PASSWORD`         | Your Zerodha Kite login password                                           |
-| `ZERODHA_TPIN_TOKEN`            | Zerodha two-factor authentication token                                    |
-| `GOOGLE_SERVICE_ACCOUNT_BASE64` | Base64 encoded Google Service Account JSON (for Google Sheets integration)  |
+| Secret Name                     | Description                                                                    |
+|---------------------------------|--------------------------------------------------------------------------------|
+| `TELEGRAM_BOT_TOKEN`            | Obtain from Telegram's @BotFather                                              |
+| `TELEGRAM_USER_ID`              | Get from @userinfobot on Telegram                                              |
+| `ZERODHA_USER_ID`               | Your Zerodha Kite login ID                                                     |
+| `ZERODHA_USER_PASSWORD`         | Your Zerodha Kite login password                                               |
+| `ZERODHA_TPIN_TOKEN`            | Zerodha two-factor authentication token                                        |
+| `GOOGLE_SERVICE_ACCOUNT_BASE64` | Base64 encoded Google Service Account JSON(service_account_encoder.py --help)  |
 
 ### 2. Automation Setup
 
