@@ -20,7 +20,7 @@ Add these secrets to your GitHub repository:
 1. Go to your repository's **Settings** > **Secrets and variables** > **Actions**
 2. Click **New repository secret** for each required variable:
 
-#### Required Secrets:
+#### Required Secrets
 
 | Secret Name                     | Description                                                                 |
 |---------------------------------|-----------------------------------------------------------------------------|
