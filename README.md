@@ -22,14 +22,14 @@ Add these secrets to your GitHub repository:
 
 #### Required Secrets
 
-| Secret Name                     | Description                                                                    |
-|---------------------------------|--------------------------------------------------------------------------------|
-| `TELEGRAM_BOT_TOKEN`            | Obtain from Telegram's @BotFather                                              |
-| `TELEGRAM_USER_ID`              | Get from @userinfobot on Telegram                                              |
-| `ZERODHA_USER_ID`               | Your Zerodha Kite login ID                                                     |
-| `ZERODHA_USER_PASSWORD`         | Your Zerodha Kite login password                                               |
-| `ZERODHA_TPIN_TOKEN`            | Zerodha two-factor authentication token                                        |
-| `GOOGLE_SERVICE_ACCOUNT_BASE64` | Base64 encoded Google Service Account JSON(service_account_encoder.py --help)  |
+| Secret Name                     | Description                                                                   |
+| ------------------------------- | ----------------------------------------------------------------------------- |
+| `TELEGRAM_BOT_TOKEN`            | Obtain from Telegram's @BotFather                                             |
+| `TELEGRAM_USER_ID`              | Get from @userinfobot on Telegram                                             |
+| `ZERODHA_USER_ID`               | Your Zerodha Kite login ID                                                    |
+| `ZERODHA_USER_PASSWORD`         | Your Zerodha Kite login password                                              |
+| `ZERODHA_TPIN_TOKEN`            | Zerodha two-factor authentication token                                       |
+| `GOOGLE_SERVICE_ACCOUNT_BASE64` | Base64 encoded Google Service Account JSON(service_account_encoder.py --help) |
 
 ### 2. Automation Setup
 
@@ -44,30 +44,51 @@ Once all secrets are configured:
 - Double-check all secret names are exactly as shown above
 - Ensure there are no trailing spaces in secret values
 - For Google credentials, make sure to base64 encode the entire JSON file
-  
+
+## 🎯 Algorithm Overview
+
+**Automated trading bots for GoldBEES and CPSE ETFs with 3% profit targets**
+*Built with Python using Zerodha's Kite API | Telegram notifications | Google Drive logging*
+
+---
+
+### 🟡 GoldBEES Algorithm
+
+- **Target**: 2% profit (configurable)
+- **Strategy**:
+  - Buys at 0.30% below current price
+  - Sells at 2% above average purchase price
+  - Minimum sell quantity: 20 units
+
+### 🔵 CPSE ETF Algorithm
+
+- **Target**: 3% profit
+- **Smart Trend Detection**:
+  - Uses 15-day moving average to determine uptrend/downtrend
+  - Adjusts buy levels based on market direction
+  - Implements flag-based position management
+
+---
+
 ## ⚠️ Disclaimer
 
 **THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND.** By using this automated trading bot, you agree to the following:
 
 1. **Financial Risk**: Trading involves substantial risk of loss and is not suitable for every investor. Past performance is not indicative of future results.
-
 2. **No Guarantees**: There are no guarantees of profit or freedom from loss. You assume all financial risk.
-
 3. **Testing Required**: Always test with virtual/simulated accounts before live trading.
-
 4. **Compliance**: You are solely responsible for ensuring compliance with:
+
    - Your broker's terms of service
    - Local financial regulations
    - Exchange rules
-
 5. **Monitoring Required**: Do not leave the bot unattended. Technical failures can result in significant losses.
-
 6. **Liability**: The developers accept no liability for:
+
    - Trading losses
    - Technical failures
    - Security breaches
    - Account restrictions/bans
-
 7. **Security**: API keys and credentials are used at your own risk. Never share these with untrusted parties.
 
 *By using this software, you acknowledge that you understand these risks and accept full responsibility for all trading decisions and outcomes.*
