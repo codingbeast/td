@@ -38,10 +38,17 @@ class GoogleDriveLogger:
     def __init__(self, folder_name="trading_log", service_account_file="service_account.json"):
         self.service_account_file = self._get_service_account_file()
         self.folder_name = folder_name
-        self._authenticate()
-        self.drive = GoogleDrive(self.gauth)
-        self.folder_id = self._get_or_create_folder()
+        self.gauth = None
+        self.drive = None
+        self.folder_id = None
         
+        try:
+            self._authenticate()
+            self.drive = GoogleDrive(self.gauth)
+            self.folder_id = self._get_or_create_folder()
+        except Exception as e:
+            logger.error(f"Failed to initialize Google Drive logger: {e}")
+            raise
     def _get_service_account_file(self):
         """Handle service account from either env var or file"""
         # Check for encoded JSON in environment variable (GitHub Actions)
@@ -84,20 +91,23 @@ class GoogleDriveLogger:
     
     def _get_or_create_folder(self):
         """Get or create the log folder in Google Drive"""
-        # Check if folder exists
-        query = f"title='{self.folder_name}' and mimeType='application/vnd.google-apps.folder' and trashed=false"
-        file_list = self.drive.ListFile({'q': query}).GetList()
-        
-        if file_list:
-            return file_list[0]['id']
-        else:
-            # Create folder if it doesn't exist
-            folder = self.drive.CreateFile({
-                'title': self.folder_name,
-                'mimeType': 'application/vnd.google-apps.folder'
-            })
-            folder.Upload()
-            return folder['id']
+        try:
+            query = f"title='{self.folder_name}' and mimeType='application/vnd.google-apps.folder' and trashed=false"
+            file_list = self.drive.ListFile({'q': query}).GetList()
+            
+            if file_list:
+                return file_list[0]['id']
+            else:
+                folder = self.drive.CreateFile({
+                    'title': self.folder_name,
+                    'mimeType': 'application/vnd.google-apps.folder'
+                })
+                folder.Upload()
+                logger.info(f"Created new folder '{self.folder_name}' in Google Drive with ID: {folder['id']}")
+                return folder['id']
+        except Exception as e:
+            logger.error(f"Failed to get/create folder: {e}")
+            raise
     
     def _get_file_id(self, filename):
         """Get file ID if it exists"""
