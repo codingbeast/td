@@ -61,7 +61,6 @@ jobs:
       ZERODHA_TPIN_TOKEN: ${{ secrets.ZERODHA_TPIN_TOKEN }}
       GOOGLE_SERVICE_ACCOUNT_BASE64: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_BASE64 }}
     steps:
-      - name: Clear Jugaad Data Cache
       - name: Ensure cache path is a directory
         run: |
           CACHE_PATH="$HOME/.cache/nsehistory-stock"
