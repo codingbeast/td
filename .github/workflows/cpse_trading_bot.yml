@@ -20,9 +20,14 @@ jobs:
       ZERODHA_TPIN_TOKEN: ${{ secrets.ZERODHA_TPIN_TOKEN }}
       GOOGLE_SERVICE_ACCOUNT_BASE64: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_BASE64 }}
     steps:
-      - name: Clear Jugaad Data Cache
+      - name: Ensure cache path is a directory
         run: |
-          rm -rf ~/.cache/nsehistory-stock || true
+          CACHE_PATH="$HOME/.cache/nsehistory-stock"
+          if [ -f "$CACHE_PATH" ]; then
+            echo "File exists at cache path. Removing..."
+            rm "$CACHE_PATH"
+          fi
+          mkdir -p "$CACHE_PATH"
       - name: Checkout Code
         uses: actions/checkout@v3
 
@@ -56,9 +61,14 @@ jobs:
       ZERODHA_TPIN_TOKEN: ${{ secrets.ZERODHA_TPIN_TOKEN }}
       GOOGLE_SERVICE_ACCOUNT_BASE64: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_BASE64 }}
     steps:
-      - name: Clear Jugaad Data Cache
+      - name: Ensure cache path is a directory
         run: |
-          rm -rf ~/.cache/nsehistory-stock || true
+          CACHE_PATH="$HOME/.cache/nsehistory-stock"
+          if [ -f "$CACHE_PATH" ]; then
+            echo "File exists at cache path. Removing..."
+            rm "$CACHE_PATH"
+          fi
+          mkdir -p "$CACHE_PATH"
       - name: Checkout Code
         uses: actions/checkout@v3
 
