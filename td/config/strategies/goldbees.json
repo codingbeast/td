@@ -1,0 +1,8 @@
+{
+    "ticker": "GOLDBEES",
+    "stock": "GOLDBEES",
+    "min_sell_qnt": 20,
+    "amount": 100,
+    "reduce": 0.30,
+    "ISBUY": true
+}
