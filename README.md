@@ -24,7 +24,7 @@ Add these secrets to your GitHub repository:
 
 | Secret Name                     | Description                                                                   |
 | ------------------------------- | ----------------------------------------------------------------------------- |
-| `TELEGRAM_BOT_TOKEN`            | Obtain from Telegram's @BotFather                                             |
+| `TELEGRAM_BOT_TOKEN`            | Obtain from Telegram's @BotFather bot                                         |
 | `TELEGRAM_USER_ID`              | Get from @userinfobot on Telegram                                             |
 | `ZERODHA_USER_ID`               | Your Zerodha Kite login ID                                                    |
 | `ZERODHA_USER_PASSWORD`         | Your Zerodha Kite login password                                              |
