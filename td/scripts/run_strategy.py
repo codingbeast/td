@@ -2,6 +2,7 @@ import argparse,os
 from td.core.broker.zerodha import ZerodhaBroker
 from td.core.order_manager import OrderManager
 from td.core.logging.google_drive import GoogleDriveLogger
+from mycolorlogger.mylogger import log
 from td.core.logging.telegram import TelegramNotifier
 from td.strategies import get_strategy  # Factory function to load strategies
 import json
@@ -24,6 +25,7 @@ def main():
     
     # Initialize components
     logger = GoogleDriveLogger()
+    message_logger = log.logger
     notifier = TelegramNotifier(
         token=os.getenv('TELEGRAM_BOT_TOKEN'),
         chat_id=os.getenv('TELEGRAM_USER_ID'),
@@ -33,7 +35,7 @@ def main():
         password=os.getenv('ZERODHA_USER_PASSWORD'),
         tpin_token=os.getenv('ZERODHA_TPIN_TOKEN')
     )
-    order_manager = OrderManager(broker, logger)
+    order_manager = OrderManager(broker, logger, message_logger)
 
     #Load confi strategy
     strategy_config = load_config(args.strategy)

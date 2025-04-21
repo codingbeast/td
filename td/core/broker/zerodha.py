@@ -23,6 +23,15 @@ class AbstractBroker(ABC):
 class ZerodhaBroker(AbstractBroker):
     def __init__(self, user_id, password, tpin_token):
         self.kite = getKite(user_id=user_id, password=password, otp_secret_key=tpin_token)
+        self.EXCHANGE_NSE = self.kite.EXCHANGE_NSE
+        self.TRANSACTION_TYPE_BUY = self.kite.TRANSACTION_TYPE_BUY
+        self.TRANSACTION_TYPE_SELL = self.kite.TRANSACTION_TYPE_SELL
+        self.ORDER_TYPE_LIMIT = self.kite.ORDER_TYPE_LIMIT
+        self.VARIETY_AMO = self.kite.VARIETY_AMO
+        self.VARIETY_REGULAR = self.kite.VARIETY_REGULAR
+        self.PRODUCT_CNC = self.kite.PRODUCT_CNC
+        self.VALIDITY_DAY = self.kite.VALIDITY_DAY
+        
     
     def place_order(self, tradingsymbol, exchange, transaction_type, quantity, 
                    variety, order_type, price, product, disclosed_quantity, validity):
