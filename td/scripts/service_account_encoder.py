@@ -25,7 +25,7 @@ def validate_json(file_path):
 
 def main():
     parser = argparse.ArgumentParser(description='Encode Google Service Account JSON to Base64 for GitHub Secrets')
-    parser.add_argument('file', help='Path to service account JSON file')
+    parser.add_argument('--file', help='Path to service account JSON file')
     parser.add_argument('--validate', action='store_true', help='Validate JSON before encoding')
     args = parser.parse_args()
 
