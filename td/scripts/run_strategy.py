@@ -39,18 +39,16 @@ def main():
     strategy_config = load_config(args.strategy)
     # Load strategy
     strategy = get_strategy(args.strategy, strategy_config)
-    
+    strategy.current_action = args.action
     # Execute based on action
     if args.action == 'buy':
         order_manager.execute_strategy_orders(strategy)
     if args.action == 'buy-sell':
         order_manager.execute_strategy_orders(strategy)
     elif args.action == 'sell':
-        # Handle sell logic
-        pass
+        order_manager.execute_strategy_orders(strategy)
     elif args.action == 'check':
-        # Handle check logic
-        pass
+        order_manager.execute_strategy_orders(strategy)
 
 if __name__ == "__main__":
     main()

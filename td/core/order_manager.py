@@ -5,8 +5,9 @@ class OrderManager:
     
     def execute_strategy_orders(self, strategy):
         """Execute buy/sell orders based on strategy signals"""
+        strategy.set_broker(self.broker)
         signals = strategy.generate_signals()
-        
+        print(signals)
         for signal in signals:
             if signal['action'] == 'BUY':
                 self._execute_buy(signal)
