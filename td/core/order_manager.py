@@ -12,11 +12,11 @@ class OrderManager:
         strategy.set_broker(self.broker)
         signals = strategy.generate_signals()
         for signal in signals:
-            if signal['action'] == 'BUY' and self.should_run(signal):
+            if signal['action'] == 'BUY' and self._should_run(signal):
                 self._execute_buy(signal)
-            elif signal['action'] == 'SELL' and self.should_run(signal):
+            elif signal['action'] == 'SELL' and self._should_run(signal):
                 self._execute_sell(signal)
-            elif signal['action'] == 'BUY_SELL' and self.should_run(signal):
+            elif signal['action'] == 'BUY_SELL' and self._should_run(signal):
                 self._execute_sell(signal)
                 self._execute_buy(signal)
     
@@ -84,7 +84,6 @@ class OrderManager:
         gtt_order_id = int(productID)
         try:
             self.broker.cancel_order(order_id=gtt_order_id, variety=kite.VARIETY_AMO, is_buy=is_buy)
-            kite.cancel_order(order_id=gtt_order_id, variety=kite.VARIETY_AMO)
         except Exception:
             pass
 
@@ -96,7 +95,7 @@ class OrderManager:
         current_datetime = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
         return current_datetime
     
-    def should_run(self, signal) -> bool:
+    def _should_run(self, signal) -> bool:
         run_before_time = signal['run_before_time']
         run_after_time = signal['run_after_time']
         run_days = signal['run_days']
