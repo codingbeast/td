@@ -47,14 +47,15 @@ class ZerodhaBroker(AbstractBroker):
             disclosed_quantity=disclosed_quantity,
             validity=validity
         )
-    def cancel_order(self, order_id: str) -> bool:
+    def cancel_order(self, order_id: str, variety, is_buy : bool = True) -> bool:
         """Cancel order in Zerodha"""
         try:
-            self.kite.cancel_order(
-                order_id=order_id,
-                variety=self.kite.VARIETY_REGULAR
-            )
-            return True
+            if is_buy:
+                self.kite.cancel_order(
+                    order_id=order_id,
+                    variety=variety
+                )
+                return True
         except Exception as e:
             print(f"Failed to cancel order {order_id}: {e}")
             return False
