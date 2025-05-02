@@ -9,7 +9,17 @@ from td.core.logging.telegram import TelegramNotifier
 from td.strategies import get_strategy  # Factory function to load strategies
 
 #configration files
-from td.config.strategies.goldbees import GOLDBEES_CONFIG as strategy_config
+import importlib
+
+def load_strategy_config(name: str):
+    module_path = f"td.config.strategies.{name.lower()}"
+    config_name = f"{name.upper()}_CONFIG"
+
+    try:
+        module = importlib.import_module(module_path)
+        return getattr(module, config_name)
+    except (ModuleNotFoundError, AttributeError) as e:
+        raise ValueError(f"Could not load config for strategy '{name}': {e}")
 
 
 def main():
@@ -34,6 +44,7 @@ def main():
 
     #Load confi strategy
     # Load strategy
+    strategy_config = load_strategy_config(args.strategy)
     strategy = get_strategy(args.strategy, strategy_config)
     strategy.current_action = args.action
     # Execute based on action

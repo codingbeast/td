@@ -1,7 +1,7 @@
 from oauth2client.service_account import ServiceAccountCredentials
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
-from old_td.core.utilities import logger
+from td.core.utilities import logger
 import os, json
 import base64
 import tempfile

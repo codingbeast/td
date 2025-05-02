@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List
 from datetime import datetime
-from old_td.core.data.historical import HistoricalData
+from td.core.data.historical import HistoricalData
 
 
 class BaseStrategy(ABC):
