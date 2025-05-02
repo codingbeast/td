@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  buy:
+  buy_and_sell:
     runs-on: ubuntu-latest
     env:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
