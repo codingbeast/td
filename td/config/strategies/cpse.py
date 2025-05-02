@@ -1,6 +1,6 @@
 from jugaad_trader import Zerodha
 
-GOLDBEES_CONFIG = {
+CPSE_CONFIG = {
     "ticker": "CPSEETF",
     "stock": "CPSEETF",
     "exchange": Zerodha.EXCHANGE_NSE,
