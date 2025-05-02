@@ -1,40 +1,40 @@
-from abc import ABC, abstractmethod
-from jugaad_trader import Zerodha
 from typing import Optional, Dict, Any
+from jugaad_trader import Zerodha
+from td.core.broker.abstract_broker import AbstractBroker
 from algoconnectorhelper.zerodha.connect_zerodha import getKite
-
-class AbstractBroker(ABC):
-    @abstractmethod
-    def place_order(self, **kwargs) -> str:
-        """Place an order"""
-        pass
-        
-    @abstractmethod
-    def cancel_order(self, order_id: str) -> bool:
-        """Cancel an order"""
-        pass
-        
-    @abstractmethod
-    def get_positions(self) -> Dict[str, Any]:
-        """Get current positions"""
-        pass
 
 
 class ZerodhaBroker(AbstractBroker):
-    def __init__(self, user_id, password, tpin_token):
-        self.kite = getKite(user_id=user_id, password=password, otp_secret_key=tpin_token)
-        self.EXCHANGE_NSE = self.kite.EXCHANGE_NSE
-        self.TRANSACTION_TYPE_BUY = self.kite.TRANSACTION_TYPE_BUY
-        self.TRANSACTION_TYPE_SELL = self.kite.TRANSACTION_TYPE_SELL
-        self.ORDER_TYPE_LIMIT = self.kite.ORDER_TYPE_LIMIT
-        self.VARIETY_AMO = self.kite.VARIETY_AMO
-        self.VARIETY_REGULAR = self.kite.VARIETY_REGULAR
-        self.PRODUCT_CNC = self.kite.PRODUCT_CNC
-        self.VALIDITY_DAY = self.kite.VALIDITY_DAY
-        
-    
-    def place_order(self, tradingsymbol, exchange, transaction_type, quantity, 
-                   variety, order_type, price, product, disclosed_quantity, validity):
+    """
+    ZerodhaBroker is an implementation of AbstractBroker using Zerodha Kite API.
+    """
+
+    def __init__(self, user_id: str, password: str, tpin_token: str):
+        """
+        Initialize Zerodha client session using user credentials.
+        """
+        self.kite = getKite(
+            user_id=user_id,
+            password=password,
+            otp_secret_key=tpin_token
+        )
+
+    def place_order(
+        self,
+        tradingsymbol: str,
+        exchange: str,
+        transaction_type: str,
+        quantity: int,
+        variety: str,
+        order_type: str,
+        price: float,
+        product: str,
+        disclosed_quantity: int,
+        validity: str
+    ) -> Any:
+        """
+        Place an order through Zerodha Kite.
+        """
         return self.kite.place_order(
             tradingsymbol=tradingsymbol,
             exchange=exchange,
@@ -47,30 +47,50 @@ class ZerodhaBroker(AbstractBroker):
             disclosed_quantity=disclosed_quantity,
             validity=validity
         )
-    def cancel_order(self, order_id: str, variety, is_buy : bool = True) -> bool:
-        """Cancel order in Zerodha"""
+
+    def cancel_order(
+        self,
+        order_id: str,
+        variety: str,
+        is_buy: bool = True
+    ) -> bool:
+        """
+        Cancel an order in Zerodha.
+
+        :param order_id: ID of the order to cancel
+        :param variety: Order variety (e.g., regular, amo)
+        :param is_buy: Optional flag to confirm buy-side (default True)
+        :return: True if cancelled, False on exception
+        """
         try:
             if is_buy:
-                self.kite.cancel_order(
-                    order_id=order_id,
-                    variety=variety
-                )
+                self.kite.cancel_order(order_id=order_id, variety=variety)
+                return True
+            else:
+                self.kite.cancel_order(order_id=order_id, variety=variety)
                 return True
         except Exception as e:
             print(f"Failed to cancel order {order_id}: {e}")
-            return False
-    
+        return False
+
     def get_positions(self) -> Dict[str, Any]:
-        """Get current positions"""
+        """
+        Get current day and net positions.
+        """
+        positions = self.kite.positions()
         return {
-            'net': self.kite.positions()['net'],
-            'day': self.kite.positions()['day']
+            "net": positions["net"],
+            "day": positions["day"]
         }
-    
-    # Additional Zerodha-specific methods
-    def get_holdings(self):
+
+    def get_holdings(self) -> Any:
+        """
+        Get current holdings.
+        """
         return self.kite.holdings()
-    
-    def get_margins(self):
+
+    def get_margins(self) -> Any:
+        """
+        Get margin details.
+        """
         return self.kite.margins()
-    # Implement other required methods

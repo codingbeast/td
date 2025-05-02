@@ -1,2 +1,2 @@
-python -m td.scripts.run_strategy --strategy goldbees --action buy
+python -m td.scripts.run_strategy --strategy goldbees --action check
 python -m td.scripts.run_strategy --strategy goldbees --action buy-sell

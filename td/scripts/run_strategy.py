@@ -3,20 +3,15 @@ from td.core.broker.zerodha import ZerodhaBroker
 from td.core.order_manager import OrderManager
 from td.core.logging.google_drive import GoogleDriveLogger
 from mycolorlogger.mylogger import log
-from td.core.logging.telegram import TelegramNotifier
-from td.strategies import get_strategy  # Factory function to load strategies
 import json
 from pathlib import Path
+from td.core.logging.telegram import TelegramNotifier
+from td.strategies import get_strategy  # Factory function to load strategies
 
-def load_config(strategy_name: str) -> dict:
-    """Load strategy configuration from JSON file"""
-    config_path = Path(__file__).parent.parent / 'config' / 'strategies' / f'{strategy_name}.json'
-    try:
-        with open(config_path) as f:
-            return json.load(f)
-    except Exception as e:
-        raise RuntimeError(f"Failed to load config for {strategy_name}: {e}")
-    
+#configration files
+from td.config.strategies.goldbees import GOLDBEES_CONFIG as strategy_config
+
+
 def main():
     parser = argparse.ArgumentParser(description='Run trading strategy')
     parser.add_argument('--strategy', required=True, help='Strategy name')
@@ -35,10 +30,9 @@ def main():
         password=os.getenv('ZERODHA_USER_PASSWORD'),
         tpin_token=os.getenv('ZERODHA_TPIN_TOKEN')
     )
-    order_manager = OrderManager(broker, logger, message_logger)
+    order_manager = OrderManager(broker, logger, message_logger, notifier)
 
     #Load confi strategy
-    strategy_config = load_config(args.strategy)
     # Load strategy
     strategy = get_strategy(args.strategy, strategy_config)
     strategy.current_action = args.action

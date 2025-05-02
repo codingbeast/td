@@ -1,6 +1,6 @@
 from importlib import import_module
 from typing import Type
-from td.strategies.base_strategy import BaseStrategy
+from old_td.strategies.base_strategy import BaseStrategy
 
 def get_strategy(strategy_name: str, config: dict) -> 'BaseStrategy':
     """

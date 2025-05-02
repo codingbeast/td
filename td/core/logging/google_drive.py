@@ -1,7 +1,7 @@
 from oauth2client.service_account import ServiceAccountCredentials
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
-from td.core.utilities import logger
+from old_td.core.utilities import logger
 import os, json
 import base64
 import tempfile
@@ -9,7 +9,7 @@ import tempfile
 
 class GoogleDriveLogger:
     def __init__(self, folder_name="trading_log", service_account_file="service_account.json"):
-        self.service_account_file = self._get_service_account_file()
+        self.service_account_file = self._get_service_account_file(service_account_file)
         self.folder_name = folder_name
         self.gauth = None
         self.drive = None
@@ -22,7 +22,7 @@ class GoogleDriveLogger:
         except Exception as e:
             logger.error(f"Failed to initialize Google Drive logger: {e}")
             raise
-    def _get_service_account_file(self):
+    def _get_service_account_file(self, service_account_file : str):
         """Handle service account from either env var or file"""
         # Check for encoded JSON in environment variable (GitHub Actions)
         if encoded_json := os.getenv('GOOGLE_SERVICE_ACCOUNT_BASE64'):
@@ -48,9 +48,8 @@ class GoogleDriveLogger:
                 raise
 
         # Fallback to local file (development)
-        local_file = "service_account.json"
-        if os.path.exists(local_file):
-            return local_file
+        if os.path.exists(service_account_file):
+            return service_account_file
             
         raise FileNotFoundError("No Google Service Account configuration found")
     def _authenticate(self):
