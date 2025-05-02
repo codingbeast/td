@@ -7,7 +7,7 @@ GOLDBEES_CONFIG = {
     "variety": Zerodha.VARIETY_AMO,
     "order_type": Zerodha.ORDER_TYPE_LIMIT,
     "product_type": Zerodha.PRODUCT_CNC,
-    "min_sell_qnt": 2,
+    "min_sell_qnt": 30,
     "amount": 100,
     "reduce": 0.30,
     "profit_percentage": 1.02,

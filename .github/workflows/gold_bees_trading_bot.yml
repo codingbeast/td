@@ -41,51 +41,10 @@ jobs:
           pip install -r requirements.txt
           pip install oauth2client PyDrive2
 
-      - name: Run Buy Operation
+      - name: Run Buy and Sell Operation
         run: |
-          python3 gold/gold_trading.py --buy
+          python -m td.scripts.run_strategy --strategy goldbees --action buy-sell
 
       - name: Verify Google Drive Log
         run: |
-          echo "Buy operation completed. Logs stored in Google Drive."
-
-  sell:
-    runs-on: ubuntu-latest
-    needs: buy
-    if: always()  # Always run sell even if buy fails
-    env:
-      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-      TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
-      ZERODHA_USER_ID: ${{ secrets.ZERODHA_USER_ID }}
-      ZERODHA_USER_PASSWORD: ${{ secrets.ZERODHA_USER_PASSWORD }}
-      ZERODHA_TPIN_TOKEN: ${{ secrets.ZERODHA_TPIN_TOKEN }}
-      GOOGLE_SERVICE_ACCOUNT_BASE64: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_BASE64 }}
-    steps:
-      - name: Ensure cache path is a directory
-        run: |
-          CACHE_PATH="$HOME/.cache/nsehistory-stock"
-          if [ -f "$CACHE_PATH" ]; then
-            echo "File exists at cache path. Removing..."
-            rm "$CACHE_PATH"
-          fi
-          mkdir -p "$CACHE_PATH"
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install oauth2client PyDrive2
-
-      - name: Run Sell Operation
-        run: |
-          python3 gold/gold_trading.py --sell
-
-      - name: Verify Google Drive Log
-        run: |
-          echo "Sell operation completed. Logs stored in Google Drive."
+          echo "Buy and Sell operation completed. Logs stored in Google Drive."
