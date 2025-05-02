@@ -43,7 +43,7 @@ jobs:
 
       - name: Run Buy and Sell Operation
         run: |
-          python -m td.scripts.run_strategy --strategy goldbees --action buy-sell
+          python -m td.scripts.run_strategy --strategy goldbees --action buy
 
       - name: Verify Google Drive Log
         run: |
