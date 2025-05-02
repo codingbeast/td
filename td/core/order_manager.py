@@ -107,7 +107,7 @@ class OrderManager:
                 is_buy=is_buy
             )
         except Exception as e:
-            print(e)
+            #print(e)
             pass
         self.drive_logger.delete_file(filename)
         return True
