@@ -125,3 +125,41 @@ class GoogleDriveLogger:
     def file_exists(self, filename):
         return self._get_file_id(filename) is not None
     
+
+class FlagManager:
+    def __init__(self, filename='cpse_flag.txt'):
+        self.filename = filename
+        self.drive_logger = GoogleDriveLogger()
+        self.initialize_file()
+
+    def initialize_file(self):
+        if not self.drive_logger.file_exists(self.filename):
+            # If the file does not exist, create it with 4 True values
+            self.drive_logger.write_file(self.filename, 'True\nTrue\nTrue\nTrue\n')
+
+    def check_flags(self):
+        content = self.drive_logger.read_file(self.filename)
+        if not content:
+            return False
+            
+        flags = content.splitlines()
+        flags = [flag.strip() == 'True' for flag in flags]
+
+        if all(flag == False for flag in flags):
+            return False
+        return True
+
+    def update_flag(self, new_flag):
+        content = self.drive_logger.read_file(self.filename)
+        if not content:
+            return
+            
+        flags = content.splitlines()
+        flags = [flag.strip() == 'True' for flag in flags]
+
+        flags.pop(0)
+        flags.append(new_flag)
+
+        new_content = '\n'.join(str(flag) for flag in flags)
+        self.drive_logger.write_file(self.filename, new_content)
+    
