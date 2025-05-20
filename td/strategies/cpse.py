@@ -158,7 +158,7 @@ class CpseStrategy(BaseStrategy):
         return stockdata
     
     def genUp(self, price, flag : bool) -> list:
-        limitPrices = [1000, 500, 400, 300, 400, 500, 600, 700 ]
+        limitPrices = [200, 500, 400, 300, 400, 500, 600, 700 ]
         limitPrices = self.getPricesData(limitPrices = limitPrices, new_total=self.config.get('uptrand_price'))
         finalPrices = [price-0.3,  price - 0.6, price - 0.9, price - 1.2, price - 1.5, price - 1.8, price - 2.1, price - 2.4 ]
         temp = []
