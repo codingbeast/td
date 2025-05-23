@@ -49,11 +49,12 @@ class OrderManager:
     def _execute_buy(self, signal):
         try:
             self.message_logger.info(f"Attempting BUY order for {signal['symbol']}")
-            self.log_cancel_order(signal['symbol'], signal['variety'], True)
+            if signal['cancel_old_order']:
+                self.log_cancel_order(signal['symbol'], signal['variety'], True)
             order_params = self._generate_order_params(signal, is_buy=True)
             order_id = self.broker.place_order(**order_params)
-            self.log_writer_order(order_id, signal['symbol'], True)
-
+            if signal['cancel_old_order']:
+                self.log_writer_order(order_id, signal['symbol'], True)
             message = (f"BUY order placed - ID: {order_id} | "
                        f"{signal['quantity']} shares of {signal['symbol']} @ {signal['price']}")
             self.message_logger.info(message)
@@ -69,10 +70,12 @@ class OrderManager:
     def _execute_sell(self, signal):
         try:
             self.message_logger.info(f"Attempting SELL order for {signal['symbol']}")
-            self.log_cancel_order(signal['symbol'], signal['variety'], False)
+            if signal['cancel_old_order']:
+                self.log_cancel_order(signal['symbol'], signal['variety'], False)
             order_params = self._generate_order_params(signal, is_buy=False)
             order_id = self.broker.place_order(**order_params)
-            self.log_writer_order(order_id, signal['symbol'], False)
+            if signal['cancel_old_order']:
+                self.log_writer_order(order_id, signal['symbol'], False)
 
             message = (f"SELL order placed - ID: {order_id} | "
                        f"{signal['quantity']} shares of {signal['symbol']} @ {signal['price']}")

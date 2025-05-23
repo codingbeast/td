@@ -38,7 +38,8 @@ class CpseStrategy(BaseStrategy):
                     variety=self.config['variety'],
                     exchange=self.config['exchange'],
                     price=stock['PRICE'],
-                    enabled=self.config['enabled']
+                    enabled=self.config['enabled'],
+                    cancel_old_order=self.config['cancel_old_order']
                 ))
         elif self.current_action == 'sell':
             #sell order run
@@ -59,7 +60,8 @@ class CpseStrategy(BaseStrategy):
                     variety=self.config['variety'],
                     exchange=self.config['exchange'],
                     price=sell_price,
-                    enabled=self.config['enabled']
+                    enabled=self.config['enabled'],
+                    cancel_old_order=self.config['cancel_old_order']
                 ))
         elif self.current_action == 'buy-sell':
             for stock in stock_data:
@@ -78,7 +80,8 @@ class CpseStrategy(BaseStrategy):
                     variety=self.config['variety'],
                     exchange=self.config['exchange'],
                     price=stock['PRICE'],
-                    enabled=self.config['enabled']
+                    enabled=self.config['enabled'],
+                    cancel_old_order=self.config['cancel_old_order']
                 ))
             if holding := self._get_holding():
                 sell_price = max(
@@ -97,7 +100,8 @@ class CpseStrategy(BaseStrategy):
                     variety=self.config['variety'],
                     exchange=self.config['exchange'],
                     price=sell_price,
-                    enabled=self.config['enabled']
+                    enabled=self.config['enabled'],
+                    cancel_old_order=self.config['cancel_old_order']
                 ))
         elif self.current_action == 'check':
             if position := self._get_position():
@@ -113,7 +117,8 @@ class CpseStrategy(BaseStrategy):
                             variety=Zerodha.VARIETY_REGULAR,
                             exchange=self.config['exchange'],
                             enabled=self.config['enabled'],
-                            price=stock['PRICE']
+                            price=stock['PRICE'],
+                            cancel_old_order=self.config['cancel_old_order']
                         ))
                         break #only single order should place on check point
         return signals

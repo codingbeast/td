@@ -70,7 +70,8 @@ class ZerodhaBroker(AbstractBroker):
                 self.kite.cancel_order(order_id=order_id, variety=variety)
                 return True
         except Exception as e:
-            print(f"Failed to cancel order {order_id}: {e}")
+            pass
+            #print(f"Failed to cancel order {order_id}: {e}")
         return False
 
     def get_positions(self) -> Dict[str, Any]:

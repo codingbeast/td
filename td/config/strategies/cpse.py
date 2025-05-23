@@ -15,6 +15,7 @@ CPSE_CONFIG = {
     "run_after_time": "15:00:00",
     "run_on_days": "0,1,2,3,4",
     "is_buy": True,
+    "cancel_old_order": False,
     "amount_strict": False,
     "enabled": True
 }

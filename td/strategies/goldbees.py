@@ -27,7 +27,8 @@ class GoldbeesStrategy(BaseStrategy):
                 variety=self.config['variety'],
                 exchange=self.config['exchange'],
                 enabled=self.config['enabled'],
-                price=stock_data['close'] - self.config.get('reduce', 0)
+                price=stock_data['close'] - self.config.get('reduce', 0),
+                cancel_old_order=self.config['cancel_old_order']
             ))
 
         # Single SELL
@@ -49,7 +50,8 @@ class GoldbeesStrategy(BaseStrategy):
                     variety=self.config['variety'],
                     exchange=self.config['exchange'],
                     price=sell_price,
-                    enabled=self.config['enabled']
+                    enabled=self.config['enabled'],
+                    cancel_old_order=self.config['cancel_old_order']
                 ))
 
         # BUY-SELL combo
@@ -71,7 +73,8 @@ class GoldbeesStrategy(BaseStrategy):
                     variety=self.config['variety'],
                     exchange=self.config['exchange'],
                     price=sell_price,
-                    enabled=self.config['enabled']
+                    enabled=self.config['enabled'],
+                    cancel_old_order=self.config['cancel_old_order']
                 ))
             signals.append(self._create_buy_signal(
                 symbol=self.config['ticker'],
@@ -83,7 +86,8 @@ class GoldbeesStrategy(BaseStrategy):
                 variety=self.config['variety'],
                 exchange=self.config['exchange'],
                 enabled=self.config['enabled'],
-                price=stock_data['close'] - self.config.get('reduce', 0)
+                price=stock_data['close'] - self.config.get('reduce', 0),
+                cancel_old_order=self.config['cancel_old_order']
             ))
 
         elif self.current_action == 'check':
@@ -98,7 +102,8 @@ class GoldbeesStrategy(BaseStrategy):
                 variety=Zerodha.VARIETY_REGULAR,
                 exchange=self.config['exchange'],
                 enabled=self.config['enabled'],
-                price=holding['last_price']
+                price=holding['last_price'],
+                cancel_old_order=self.config['cancel_old_order']
             ))
 
         return signals

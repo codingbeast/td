@@ -35,7 +35,8 @@ class BaseStrategy(ABC):
         exchange: str = "NSE",
         product_type : str = "CNC",
         amount_strict: bool = False,
-        enabled: bool = True
+        enabled: bool = True,
+        cancel_old_order : bool = True
     ) -> Dict:
         """
         Create a standardized signal dictionary.
@@ -54,7 +55,8 @@ class BaseStrategy(ABC):
             "run_before_time": run_before_time,
             "run_after_time": run_after_time,
             "run_on_days": run_on_days,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
+            "cancel_old_order" : cancel_old_order
         }
 
     def _create_buy_signal(
@@ -70,7 +72,8 @@ class BaseStrategy(ABC):
         exchange: str = "NSE",
         product_type : str = "CNC",
         amount_strict: bool = False,
-        enabled: bool = True
+        enabled: bool = True,
+        cancel_old_order: bool = True
     ) -> Dict:
         """
         Create a standardized BUY signal.
@@ -88,7 +91,8 @@ class BaseStrategy(ABC):
             exchange=exchange,
             product_type=product_type,
             amount_strict=amount_strict,
-            enabled=enabled
+            enabled=enabled,
+            cancel_old_order=cancel_old_order
         )
 
     def _create_sell_signal(
@@ -104,7 +108,8 @@ class BaseStrategy(ABC):
         exchange: str = "NSE",
         product_type : str = "CNC",
         amount_strict: bool = False,
-        enabled: bool = True
+        enabled: bool = True,
+        cancel_old_order: bool = True
     ) -> Dict:
         """
         Create a standardized SELL signal.
@@ -122,7 +127,8 @@ class BaseStrategy(ABC):
             exchange=exchange,
             product_type=product_type,
             amount_strict=amount_strict,
-            enabled=enabled
+            enabled=enabled,
+            cancel_old_order=cancel_old_order
         )
 
     @property

@@ -1,8 +1,8 @@
 from jugaad_trader import Zerodha
 
 GOLDBEES_CONFIG = {
-    "ticker": "GOLDBEES",
-    "stock": "GOLDBEES",
+    "tickers": "GOLDBEES",
+    "stocks": "GOLDBEES",
     "exchange": Zerodha.EXCHANGE_NSE,
     "variety": Zerodha.VARIETY_AMO,
     "order_type": Zerodha.ORDER_TYPE_LIMIT,
@@ -15,7 +15,6 @@ GOLDBEES_CONFIG = {
     "run_after_time": "15:00:00",
     "run_on_days": "0,1,2,3,4",
     "is_buy": True,
-    "cancel_old_order": True,
     "amount_strict": False,
     "enabled": True
 }
