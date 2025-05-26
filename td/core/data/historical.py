@@ -2,6 +2,7 @@
 from jugaad_data.nse import stock_df
 from datetime import date, timedelta
 import pandas as pd
+import hashlib
 
 class HistoricalData:
     def __init__(self):
@@ -9,8 +10,8 @@ class HistoricalData:
 
     def get_data(self, symbol, from_date, to_date, series="EQ"):
         """Fetch historical data with caching"""
-        cache_key = f"{symbol}_{from_date}_{to_date}_{series}"
-        
+        key_str = f"{symbol}_{from_date}_{to_date}_{series}"
+        cache_key = hashlib.md5(key_str.encode()).hexdigest()
         if cache_key not in self.cache:
             df = stock_df(
                 symbol=symbol,
@@ -19,7 +20,7 @@ class HistoricalData:
                 series=series
             )
             self.cache[cache_key] = df.sort_values('DATE', ascending=True)
-        
+            
         return self.cache[cache_key].copy()
 
     def get_last_close(self, symbol, days_back=1):
