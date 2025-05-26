@@ -1,6 +1,7 @@
 algoconnectorhelper
 jugaad_trader
 jugaad-data
+yfinance
 mycolorlogger
 pandas
 python_crontab
