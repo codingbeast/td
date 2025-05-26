@@ -1,6 +1,6 @@
 algoconnectorhelper
 jugaad_trader
-jugaad_data
+git+https://github.com/codingbeast/jugaad-data.git@master
 mycolorlogger
 pandas
 python_crontab
