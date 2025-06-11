@@ -8,4 +8,4 @@ python_crontab
 oauth2client
 PyDrive2
 psutil
-yfinance
+nse[server]
