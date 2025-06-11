@@ -8,4 +8,5 @@ python_crontab
 oauth2client
 PyDrive2
 psutil
+pandas
 nse[server]
