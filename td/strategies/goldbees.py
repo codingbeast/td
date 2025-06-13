@@ -120,6 +120,7 @@ class GoldbeesStrategy(BaseStrategy):
         """Helper method to get required stock data"""
         today = date.today()
         df = self.data_client.get_data(
+            broker=self.broker,
             symbol=self.config['ticker'],
             from_date=today - timedelta(days=10),
             to_date=today,
