@@ -1,16 +1,16 @@
 name: cpse Trading Automation
 
 on:
-  # schedule:
-  #   # Single trigger at 8:00 AM IST (2:30 AM UTC)
-  #   - cron: '30 2 * * 1-5'  # Runs Mon-Fri at 8:00 AM IST
+  schedule:
+    # Single trigger at 8:00 AM IST (2:30 AM UTC)
+    - cron: '30 0 1 * 1-5'  # Runs Mon-Fri at 8:00 AM IST
   workflow_dispatch:  # Manual trigger for both buy and sell
 
 permissions:
   contents: read
 
 jobs:
-  buy:
+  buy_and_sell:
     runs-on: ubuntu-latest
     env:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -41,51 +41,10 @@ jobs:
           pip install -r requirements.txt
           pip install oauth2client PyDrive2
 
-      - name: Run Buy Operation
+      - name: Run Buy and sell Operation
         run: |
-          python3 cpse/cpse_trading.py --buy
+          python -m td.scripts.run_strategy --strategy cpse --action buy-sell
 
       - name: Verify Google Drive Log
         run: |
-          echo "Buy operation completed. Logs stored in Google Drive."
-
-  sell:
-    runs-on: ubuntu-latest
-    needs: buy
-    if: always()  # Always run sell even if buy fails
-    env:
-      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-      TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
-      ZERODHA_USER_ID: ${{ secrets.ZERODHA_USER_ID }}
-      ZERODHA_USER_PASSWORD: ${{ secrets.ZERODHA_USER_PASSWORD }}
-      ZERODHA_TPIN_TOKEN: ${{ secrets.ZERODHA_TPIN_TOKEN }}
-      GOOGLE_SERVICE_ACCOUNT_BASE64: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_BASE64 }}
-    steps:
-      - name: Ensure cache path is a directory
-        run: |
-          CACHE_PATH="$HOME/.cache/nsehistory-stock"
-          if [ -f "$CACHE_PATH" ]; then
-            echo "File exists at cache path. Removing..."
-            rm "$CACHE_PATH"
-          fi
-          mkdir -p "$CACHE_PATH"
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install oauth2client PyDrive2
-
-      - name: Run Sell Operation
-        run: |
-          python3 cpse/cpse_trading.py --sell
-
-      - name: Verify Google Drive Log
-        run: |
-          echo "Sell operation completed. Logs stored in Google Drive."
+          echo "Buy and sell operation completed. Logs stored in Google Drive."
