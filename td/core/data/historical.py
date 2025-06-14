@@ -26,25 +26,25 @@ class HistoricalData:
             instrument_token = nse_data[nse_data.tradingsymbol == symbol].instrument_token.values[0]
 
             data = broker.historical_data(instrument_token, from_date_str, to_date_str, 'day')
-            data.columns = data.columns.str.upper()
-            data['DATE'] = pd.to_datetime(data['DATE']).dt.date
+            df = pd.DataFrame(data)
+            df.columns = df.columns.str.upper()
+            df['DATE'] = pd.to_datetime(df['DATE']).dt.date
 
-            self.cache[cache_key] = data
-            return data.copy()
+            self.cache[cache_key] = df
+            return df.copy()
 
         except Exception as e:
             print(f"[Zerodha failed] Fallback to jugaad: {e}")
-
-        # Fallback to jugaad_data
-        df = stock_df(
-            symbol=symbol,
-            from_date=from_date,
-            to_date=to_date,
-            series=series
-        )
-        df = df.sort_values('DATE', ascending=True)
-        self.cache[cache_key] = df
-        return df.copy()
+            # Fallback to jugaad_data
+            df = stock_df(
+                symbol=symbol,
+                from_date=from_date,
+                to_date=to_date,
+                series=series
+            )
+            df = df.sort_values('DATE', ascending=True)
+            self.cache[cache_key] = df
+            return df.copy()
 
     def get_last_close(self, broker, symbol, days_back=1):
         """Get the latest closing price from most recent trading day"""

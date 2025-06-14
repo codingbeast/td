@@ -95,3 +95,5 @@ class ZerodhaBroker(AbstractBroker):
         Get margin details.
         """
         return self.kite.margins()
+    def historical_data(self, instrument_token, from_date_str, to_date_str, period = 'day'):
+        return self.kite.historical_data(instrument_token=instrument_token, from_date=from_date_str, to_date=to_date_str,interval=period)
