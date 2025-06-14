@@ -36,15 +36,15 @@ class HistoricalData:
         except Exception as e:
             print(f"[Zerodha failed] Fallback to jugaad: {e}")
             # Fallback to jugaad_data
-            df = stock_df(
-                symbol=symbol,
-                from_date=from_date,
-                to_date=to_date,
-                series=series
-            )
-            df = df.sort_values('DATE', ascending=True)
-            self.cache[cache_key] = df
-            return df.copy()
+        df = stock_df(
+            symbol=symbol,
+            from_date=from_date,
+            to_date=to_date,
+            series=series
+        )
+        df = df.sort_values('DATE', ascending=True)
+        self.cache[cache_key] = df
+        return df.copy()
 
     def get_last_close(self, broker, symbol, days_back=1):
         """Get the latest closing price from most recent trading day"""
