@@ -19,6 +19,25 @@ class ZerodhaBroker(AbstractBroker):
             otp_secret_key=tpin_token
         )
 
+    def place_gtt_order(
+        self,
+        tradingsymbol: str,
+        exchange: str,
+        transaction_type: str,
+        quantity: int,
+        variety: str,
+        order_type: str,
+        price: float,
+        product: str,
+        disclosed_quantity: int,
+        validity: str
+    ):
+        self.kite.place_gtt(
+            trigger_type = transaction_type,
+            tradingsymbol=tradingsymbol,
+            exchange=exchange
+        )
+    
     def place_order(
         self,
         tradingsymbol: str,
