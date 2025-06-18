@@ -7,3 +7,8 @@ python -m td.scripts.run_strategy --strategy cpse --action buy
 python -m td.scripts.run_strategy --strategy cpse --action sell
 python -m td.scripts.run_strategy --strategy cpse --action buy-sell check
 python -m td.scripts.run_strategy --strategy cpse --action check
+
+python -m td.scripts.run_strategy --strategy hommagenius --action buy
+python -m td.scripts.run_strategy --strategy hommagenius --action sell
+python -m td.scripts.run_strategy --strategy hommagenius --action buy-sell check
+python -m td.scripts.run_strategy --strategy hommagenius --action check
