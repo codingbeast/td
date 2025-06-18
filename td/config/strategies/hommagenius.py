@@ -8,7 +8,7 @@ HOMMAGENIUS_CONFIG = {
     "order_type": Zerodha.ORDER_TYPE_LIMIT,
     "product_type": Zerodha.PRODUCT_CNC,
     "min_sell_qnt": 30,
-    "amount": 500,
+    "amount": 1000,
     "profit_percentage": 1.03,
     "run_before_time": "14:15:00",
     "run_after_time": "14:00:00",
