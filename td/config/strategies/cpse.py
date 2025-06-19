@@ -13,6 +13,7 @@ CPSE_CONFIG = {
     "profit_percentage": 1.03,
     "run_before_time": "09:00:00",
     "run_after_time": "15:00:00",
+    "is_time_between" : False,
     "run_on_days": "0,1,2,3,4",
     "is_buy": True,
     "cancel_old_order": False,

@@ -1,6 +1,7 @@
 from math import ceil
 from jugaad_trader import Zerodha
 from datetime import datetime
+import pytz
 
 
 class OrderManager:
@@ -120,12 +121,13 @@ class OrderManager:
         return datetime.now().strftime(self.DATETIME_FORMAT)
 
     def _should_run(self, signal) -> bool:
-        now = datetime.now()
+        ist = pytz.timezone("Asia/Kolkata")
+        now = datetime.now(ist)
         current_day = now.weekday()
         current_time = now.time()
-
         run_days = set(int(day.strip()) for day in signal['run_on_days'].split(','))
         before_time = datetime.strptime(signal['run_before_time'], self.TIME_FORMAT).time()
         after_time = datetime.strptime(signal['run_after_time'], self.TIME_FORMAT).time()
-
-        return current_day in run_days and (current_time < before_time or current_time > after_time)
+        if signal.get('is_time_between',False) == True:
+            return current_day in run_days and (current_time <= before_time and current_time >= after_time)
+        return current_day in run_days and (current_time <= before_time or current_time >= after_time)

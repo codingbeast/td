@@ -27,6 +27,7 @@ class HommageniusStrategy(BaseStrategy):
                     quantity=stock_data['qnt'],
                     run_before_time=self.config['run_before_time'],
                     run_after_time=self.config['run_after_time'],
+                    is_time_between=self.config['is_time_between'],
                     run_on_days=self.config['run_on_days'],
                     order_type=self.config['order_type'],
                     variety=self.config['variety'],
