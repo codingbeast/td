@@ -1,10 +1,14 @@
+# pylint: disable=missing-docstring
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-positional-arguments
+# pylint: disable=too-many-locals
 from abc import ABC, abstractmethod
 from typing import Dict, List
 from datetime import datetime
 from td.core.data.historical import HistoricalData
 
-
 class BaseStrategy(ABC):
+    """this class is used to create the base strategy template"""
     def __init__(self, config: Dict):
         self.config = config
         self.data_client = HistoricalData()
@@ -14,12 +18,12 @@ class BaseStrategy(ABC):
     @abstractmethod
     def generate_signals(self) -> List[Dict]:
         """Generate trading signals"""
-        pass
+        pass # pylint: disable=unnecessary-pass
 
     @abstractmethod
     def calculate_position_size(self) -> int:
         """Calculate position size"""
-        pass
+        pass # pylint: disable=unnecessary-pass
 
     def _create_signal(
         self,
@@ -77,7 +81,7 @@ class BaseStrategy(ABC):
         amount_strict: bool = False,
         enabled: bool = True,
         cancel_old_order: bool = True
-    ) -> Dict:
+    ) -> Dict: # pylint: disable=too-many-arguments
         """
         Create a standardized BUY signal.
         """
@@ -115,7 +119,7 @@ class BaseStrategy(ABC):
         amount_strict: bool = False,
         enabled: bool = True,
         cancel_old_order: bool = True
-    ) -> Dict:
+    ) -> Dict: # pylint: disable=too-many-arguments
         """
         Create a standardized SELL signal.
         """
@@ -141,8 +145,7 @@ class BaseStrategy(ABC):
     @abstractmethod
     def name(self) -> str:
         """Return the name of the strategy"""
-        pass
-
+        pass # pylint: disable=unnecessary-pass
     def set_broker(self, broker) -> None:
         """Set broker instance"""
         self.broker = broker

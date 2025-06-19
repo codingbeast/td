@@ -1,11 +1,16 @@
+# pylint: disable=missing-docstring
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-positional-arguments
+# pylint: disable=too-many-locals
+
 from datetime import date, timedelta
 import math
 from typing import Dict, List, Optional
-
 from jugaad_trader import Zerodha
+from mycolorlogger.mylogger import log
 from td.strategies.base_strategy import BaseStrategy
 from td.core.logging.google_drive import FlagManager
-from mycolorlogger.mylogger import log
+
 
 message_logger = log.logger
 

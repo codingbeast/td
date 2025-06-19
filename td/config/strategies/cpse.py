@@ -1,3 +1,4 @@
+# pylint: disable=missing-docstring
 from jugaad_trader import Zerodha
 
 CPSE_CONFIG = {

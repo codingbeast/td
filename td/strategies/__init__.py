@@ -1,3 +1,4 @@
+# pylint: disable=missing-docstring
 from importlib import import_module
 from typing import Type
 from td.strategies.base_strategy import BaseStrategy
@@ -16,4 +17,4 @@ def get_strategy(strategy_name: str, config: dict) -> 'BaseStrategy':
         strategy_class = getattr(module, f'{strategy_name.capitalize()}Strategy')
         return strategy_class(config)  # Initialize with config
     except (ImportError, AttributeError) as e:
-        raise ImportError(f"Could not initialize strategy '{strategy_name}': {e}")
+        raise ImportError(f"Could not initialize strategy: {e}") from e
