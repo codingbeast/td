@@ -3,7 +3,7 @@ name: Hommagenius Trading Automation
 on:
   schedule:
     # Single trigger at 8:00 AM IST (2:30 AM UTC)
-    - cron: '31 21 * * 3'  # Runs only on Thursday at 3:01 AM IST
+    - cron: '40 9 * * 4' # Runs only on Thursday at 3:10 AM IST
   workflow_dispatch:  # Manual trigger for both buy and sell
 
 permissions:
