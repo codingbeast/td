@@ -1,7 +1,6 @@
 from datetime import date, datetime, timedelta
 import math
 from typing import Dict, List, Optional
-
 from jugaad_trader import Zerodha
 from td.strategies.base_strategy import BaseStrategy
 from td.core.logging.google_drive import FlagManager
@@ -81,20 +80,7 @@ class HommageniusStrategy(BaseStrategy):
                     enabled=self.config['enabled'],
                     cancel_old_order=self.config['cancel_old_order']
                 ))
-            signals.append(self._create_buy_signal(
-                symbol=self.config['ticker'],
-                quantity=stock_data['qnt'],
-                run_before_time=self.config['run_before_time'],
-                run_after_time=self.config['run_after_time'],
-                run_on_days=self.config['run_on_days'],
-                order_type=self.config['order_type'],
-                variety=self.config['variety'],
-                exchange=self.config['exchange'],
-                enabled=self.config['enabled'],
-                price=stock_data['close_price'],
-                cancel_old_order=self.config['cancel_old_order']
-            ))
-        elif self.current_action == 'check':
+            if stock_data['isBearish'] == True:
                 signals.append(self._create_buy_signal(
                     symbol=self.config['ticker'],
                     quantity=stock_data['qnt'],
@@ -108,6 +94,21 @@ class HommageniusStrategy(BaseStrategy):
                     price=stock_data['close_price'],
                     cancel_old_order=self.config['cancel_old_order']
                 ))
+        elif self.current_action == 'check':
+                if stock_data['isBearish'] == True:
+                    signals.append(self._create_buy_signal(
+                        symbol=self.config['ticker'],
+                        quantity=stock_data['qnt'],
+                        run_before_time=self.config['run_before_time'],
+                        run_after_time=self.config['run_after_time'],
+                        run_on_days=self.config['run_on_days'],
+                        order_type=self.config['order_type'],
+                        variety=self.config['variety'],
+                        exchange=self.config['exchange'],
+                        enabled=self.config['enabled'],
+                        price=stock_data['close_price'],
+                        cancel_old_order=self.config['cancel_old_order']
+                    ))
         return signals
 
     def calculate_position_size(self, stock_price):
@@ -163,7 +164,7 @@ class HommageniusStrategy(BaseStrategy):
     @property
     def name(self):
         """Return strategy name"""
-        return "GOLDBEES"
+        return "HOMMAGENIUS"
 
     def set_broker(self, broker):
         """Set broker instance"""
