@@ -43,7 +43,7 @@ jobs:
 
       - name: Run Buy and sell Operation
         run: |
-          python -m td.scripts.run_strategy --strategy hommagenius --action buy-sell
+          python -m td.scripts.run_strategy --strategy hommagenius --action buy
 
       - name: Verify Google Drive Log
         run: |
