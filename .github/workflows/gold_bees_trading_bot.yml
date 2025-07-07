@@ -6,6 +6,10 @@ on:
     - cron: '30 0 * * 1-5'  # Runs Mon-Fri at 6:00 AM IST
   workflow_dispatch:  # Manual trigger for both buy and sell
 
+concurrency:
+  group: trading-automation-lock  # All workflows using this name will wait for others
+  cancel-in-progress: false       # Wait instead of canceling
+  
 permissions:
   contents: read
 
