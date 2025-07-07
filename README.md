@@ -45,6 +45,24 @@ Once all secrets are configured:
 2. The bot will run according to the schedule defined in `.github/workflows/`
 3. You'll receive status notifications via Telegram
 
+### How to stop some strategies  
+goto .github\workflows\[open your strategy file that you want to stop]  
+here are similar schedule codes in each file you have to simply add # before the cron (word)  
+for example this will run 
+```on:
+  schedule:
+    # Single trigger at 8:00 AM IST (2:30 AM UTC)
+    - cron: '30 0 1 * 1-5'  # Runs Mon-Fri at 8:00 AM IST
+  workflow_dispatch:  # Manual trigger for both buy and sell
+```  
+this will not run becouse we disabled the cron (so if you want to run this you have to manually trigger this)   
+```on:
+  schedule:
+    # Single trigger at 8:00 AM IST (2:30 AM UTC)
+    #- cron: '30 0 1 * 1-5'  # Runs Mon-Fri at 8:00 AM IST
+  workflow_dispatch:  # Manual trigger for both buy and sell
+```
+
 ### Troubleshooting
 
 - Double-check all secret names are exactly as shown above
