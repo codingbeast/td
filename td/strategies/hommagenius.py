@@ -149,7 +149,6 @@ class HommageniusStrategy(BaseStrategy):
         stock['low_price']   = low_price
         stock['qnt'] = self.calculate_position_size(stock_price=close_price)
         stock['isBearish'] = self.check_candle_type(open_price=open_price, close_price=close_price)
-        print(stock)
         return stock
 
     def _get_holding(self) -> Optional[Dict]:
