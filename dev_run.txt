@@ -12,3 +12,9 @@ python -m td.scripts.run_strategy --strategy hommagenius --action buy
 python -m td.scripts.run_strategy --strategy hommagenius --action sell
 python -m td.scripts.run_strategy --strategy hommagenius --action buy-sell check
 python -m td.scripts.run_strategy --strategy hommagenius --action check
+
+
+python -m td.scripts.run_strategy --strategy rsi --action buy
+python -m td.scripts.run_strategy --strategy rsi --action sell
+python -m td.scripts.run_strategy --strategy rsi --action buy-sell check
+python -m td.scripts.run_strategy --strategy rsi --action check

@@ -124,7 +124,12 @@ class GoogleDriveLogger:
     
     def file_exists(self, filename):
         return self._get_file_id(filename) is not None
-    
+
+class RsiFlagManager:
+    def __init__(self, filename='rsi_flag.txt'):
+        self.filename = filename
+        self.drive_logger = GoogleDriveLogger()
+        self.initialize_file()
 
 class FlagManager:
     def __init__(self, filename='cpse_flag.txt'):
