@@ -43,4 +43,4 @@ If you publish a modified version (e.g., on GitHub or anywhere else), you **must
 
 This project is licensed under the **MIT License + Commons Clause**, which allows use and modification but **prohibits commercial use**.
 
-Read the full [LICENSE.txt](./LICENSE) for more details.
+Read the full [LICENSE](./LICENSE) for more details.
