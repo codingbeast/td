@@ -4,6 +4,12 @@
 
 This automated trading bot connects to Zerodha's trading platform and provides notifications via Telegram. The bot requires several environment variables to be set up before it can run properly.
 
+## Inspiration
+
+Most of the strategies are based on the guidance of our trading Guruji, **Mahesh Sir**, and some strategies have been created by me.
+
+Mahesh Chander Kaushik : [Mahesh Chander Kaushik](https://www.youtube.com/@Maheshchanderkaushik)  
+Raj kumar Rao : [CodingBeast](https://www.youtube.com/@codingbeast)
 ## Prerequisites
 
 - GitHub account
