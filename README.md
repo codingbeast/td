@@ -93,6 +93,15 @@ this will not run becouse we disabled the cron (so if you want to run this you h
   - Implements flag-based position management
 
 ---
+##  🙏 Support My Work
+If you find this project helpful and would like to support its development, consider buying me a coffee or making a small donation.  
+### 📱 UPI / QR Code  
+You can scan the QR code below or use the UPI ID directly to donate:  
+<img src="td/tests/integration/donation_qr.jpeg" alt="Donate via UPI" width="200" />
+
+UPI ID: raj0kumar00@oksbi   
+
+    Every contribution, big or small, helps me keep building and sharing more open-source tools. Thank you, my lord, for your support!
 
 ## ⚠️ Disclaimer
 
