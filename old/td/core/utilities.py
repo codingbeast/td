@@ -1,10 +1,11 @@
-"""In your core/utilities.py"""
-import time
+# In your core/utilities.py
 import psutil
+import time
+from mycolorlogger.mylogger import log
+
+logger = log.logger
 
 def monitor_system():
-    """_summary_
-    """
     while True:
         cpu = psutil.cpu_percent()
         memory = psutil.virtual_memory().percent
@@ -12,3 +13,5 @@ def monitor_system():
             # Send alert
             pass
         time.sleep(60)
+
+

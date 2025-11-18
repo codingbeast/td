@@ -1,5 +1,3 @@
-"""this is script to encode google service account json to base64 for github secrets"""
-# pylint: disable=broad-exception-caught
 import base64
 import json
 import sys
@@ -18,7 +16,7 @@ def encode_file_to_base64(file_path):
 def validate_json(file_path):
     """Validate the JSON file"""
     try:
-        with open(file_path, encoding='utf-8') as f:
+        with open(file_path) as f:
             json.load(f)
         return True
     except ValueError as e:
@@ -26,9 +24,7 @@ def validate_json(file_path):
         return False
 
 def main():
-    """"main function"""
-    parser = argparse.ArgumentParser(description='Encode Google Service\
-        Account JSON to Base64 for GitHub Secrets')
+    parser = argparse.ArgumentParser(description='Encode Google Service Account JSON to Base64 for GitHub Secrets')
     parser.add_argument('--file', help='Path to service account JSON file')
     parser.add_argument('--validate', action='store_true', help='Validate JSON before encoding')
     args = parser.parse_args()
@@ -47,4 +43,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    

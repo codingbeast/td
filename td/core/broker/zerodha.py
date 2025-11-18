@@ -1,8 +1,9 @@
-from typing import Optional, Dict, Any
-from jugaad_trader import Zerodha
+"""this is zerodha broker implementation"""
+# pylint: disable=broad-exception-caught
+from typing import Dict, Any, cast
+import json
 from td.core.broker.abstract_broker import AbstractBroker
-from algoconnectorhelper.zerodha.connect_zerodha import getKite
-
+from td.core.broker.connect_zerodha import get_kite
 
 class ZerodhaBroker(AbstractBroker):
     """
@@ -13,65 +14,39 @@ class ZerodhaBroker(AbstractBroker):
         """
         Initialize Zerodha client session using user credentials.
         """
-        self.kite = getKite(
+        self.kite = get_kite(
             user_id=user_id,
             password=password,
             otp_secret_key=tpin_token
         )
 
-    # def place_gtt_order(
-    #     self,
-    #     tradingsymbol: str,
-    #     exchange: str,
-    #     transaction_type: str,
-    #     quantity: int,
-    #     variety: str,
-    #     order_type: str,
-    #     price: float,
-    #     product: str,
-    #     disclosed_quantity: int,
-    #     validity: str
-    # ):
-    #     self.kite.place_gtt(
-    #         trigger_type = transaction_type,
-    #         tradingsymbol=tradingsymbol,
-    #         exchange=exchange
-    #     )
-    
-    def place_order(
-        self,
-        tradingsymbol: str,
-        exchange: str,
-        transaction_type: str,
-        quantity: int,
-        variety: str,
-        order_type: str,
-        price: float,
-        product: str,
-        disclosed_quantity: int,
-        validity: str
-    ) -> Any:
+    def place_order(self, **kwargs) -> Any:
         """
-        Place an order through Zerodha Kite.
+        Place an order through Zerodha Kite using keyword arguments.
+        OrderManager sends kwargs, so we must accept kwargs.
         """
-        return self.kite.place_order(
-            tradingsymbol=tradingsymbol,
-            exchange=exchange,
-            transaction_type=transaction_type,
-            quantity=quantity,
-            variety=variety,
-            order_type=order_type,
-            price=price,
-            product=product,
-            disclosed_quantity=disclosed_quantity,
-            validity=validity
-        )
+        try:
+            return self.kite.place_order(**kwargs)
+        except TypeError:
+            # fallback: manually map fields (rarely needed)
+            return self.kite.place_order(
+                tradingsymbol=kwargs.get("tradingsymbol"),
+                exchange=kwargs.get("exchange"),
+                transaction_type=kwargs.get("transaction_type"),
+                quantity=kwargs.get("quantity"),
+                variety=kwargs.get("variety"),
+                order_type=kwargs.get("order_type"),
+                price=kwargs.get("price"),
+                product=kwargs.get("product"),
+                disclosed_quantity=kwargs.get("disclosed_quantity"),
+                validity=kwargs.get("validity"),
+            )
+
 
     def cancel_order(
         self,
         order_id: str,
         variety: str,
-        is_buy: bool = True
     ) -> bool:
         """
         Cancel an order in Zerodha.
@@ -82,15 +57,13 @@ class ZerodhaBroker(AbstractBroker):
         :return: True if cancelled, False on exception
         """
         try:
-            if is_buy:
-                self.kite.cancel_order(order_id=order_id, variety=variety)
-                return True
-            else:
-                self.kite.cancel_order(order_id=order_id, variety=variety)
-                return True
-        except Exception as e:
+            # cancel_order behavior is the same for buy/sell here; call once
+            self.kite.cancel_order(order_id=order_id, variety=variety)
+            return True
+        except Exception:
+            # Intentionally swallow broker errors here to avoid raising from
+            # a cancel attempt; callers receive False on failure.
             pass
-            #print(f"Failed to cancel order {order_id}: {e}")
         return False
 
     def get_positions(self) -> Dict[str, Any]:
@@ -98,9 +71,31 @@ class ZerodhaBroker(AbstractBroker):
         Get current day and net positions.
         """
         positions = self.kite.positions()
+
+        # Kite client may return bytes, a JSON string, or a mapping-like
+        # object. Coerce into a dict and use .get() to avoid type-checker
+        # complaints about __getitem__ overloads.
+        if isinstance(positions, (bytes, bytearray)):
+            try:
+                positions = json.loads(positions.decode())
+            except Exception:
+                positions = {}
+        elif isinstance(positions, str):
+            try:
+                positions = json.loads(positions)
+            except Exception:
+                positions = {}
+
+        if not isinstance(positions, dict):
+            try:
+                positions = dict(positions)
+            except Exception:
+                positions = {}
+
+        positions = cast(Dict[str, Any], positions)
         return {
-            "net": positions["net"],
-            "day": positions["day"]
+            "net": positions.get("net"),
+            "day": positions.get("day"),
         }
 
     def get_holdings(self) -> Any:
@@ -115,4 +110,8 @@ class ZerodhaBroker(AbstractBroker):
         """
         return self.kite.margins()
     def historical_data(self, instrument_token, from_date_str, to_date_str, period = 'day'):
-        return self.kite.historical_data(instrument_token=instrument_token, from_date=from_date_str, to_date=to_date_str,interval=period)
+        """access historical data from zerodha broker"""
+        return self.kite.historical_data(instrument_token=instrument_token,
+                                         from_date=from_date_str,
+                                         to_date=to_date_str,
+                                         interval=period)

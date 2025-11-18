@@ -1,151 +1,120 @@
-# pylint: disable=missing-docstring
-# pylint: disable=too-many-arguments
-# pylint: disable=too-many-positional-arguments
-# pylint: disable=too-many-locals
+"""this is base strategy file"""
 from abc import ABC, abstractmethod
-from typing import Dict, List
 from datetime import datetime
+from typing import Dict, List, Any, Optional
+
+import pytz
 from td.core.data.historical import HistoricalData
 
-class BaseStrategy(ABC):
-    """this class is used to create the base strategy template"""
-    def __init__(self, config: Dict):
-        self.config = config
-        self.data_client = HistoricalData()
-        self.broker = None
-        self.current_action = None
 
+class BaseStrategy(ABC):
+    """Base strategy template"""
+    TIME_FORMAT = "%H:%M:%S"
+    DATETIME_FORMAT = "%d-%m-%Y %H:%M:%S"
+    def __init__(self, config):
+        self.config = config                     # Pydantic model
+        self.broker = None
+        self.data_client: Optional[HistoricalData] = None
+        self.current_action = None
+        
+
+    def _create_signal(self, action: str, quantity: int, price: float, **extra) -> Dict[str, Any]:
+        """
+        Create signal dynamically from config model.
+        No need to update when new fields are added.
+        """
+
+        # START with mandatory fields
+        base_signal = {
+            "action": action.upper(),
+            "symbol": getattr(self.config, "ticker", None) 
+                      or getattr(self.config, "stock", None),
+            "quantity": quantity,
+            "price": round(float(price), 2),
+            "timestamp": datetime.now().isoformat()
+        }
+
+        # Dump CONFIG with safe conversion (Enforce enums → strings)
+        config_dict = self.config.model_dump(mode="json", by_alias=True)
+
+        # Merge config values into signal
+        base_signal.update(config_dict)
+
+        # Override with strategy-specific values
+        # Convert Enum → string inside extra
+        clean_extra = {
+            k: (v.value if hasattr(v, "value") else v)
+            for k, v in extra.items()
+        }
+
+        base_signal.update(clean_extra)
+
+
+        return base_signal
+
+    def _create_buy_signal(self, quantity: int, price: float, **extra):
+        return self._create_signal("BUY", quantity, price, **extra)
+
+    def _create_sell_signal(self, quantity: int, price: float, **extra):
+        return self._create_signal("SELL", quantity, price, **extra)
+    
+    def create_buy_signal(self, **kwargs):
+        """this will use to genrate buy signal"""
+        return self._create_buy_signal(**kwargs)
+    
+    def create_sell_signal(self, **kwargs):
+        """this will use to genrate sell signal"""
+        return self._create_sell_signal(**kwargs)
+
+    # -----------------------------
+    # Required Strategy Methods
+    # -----------------------------
     @abstractmethod
     def generate_signals(self) -> List[Dict]:
         """Generate trading signals"""
-        pass # pylint: disable=unnecessary-pass
 
     @abstractmethod
     def calculate_position_size(self) -> int:
         """Calculate position size"""
-        pass # pylint: disable=unnecessary-pass
-
-    def _create_signal(
-        self,
-        action: str,
-        symbol: str,
-        quantity: int,
-        price: float,
-        run_before_time: str = None,
-        run_after_time: str = None,
-        is_time_between : bool = False,
-        run_on_days: str = None,
-        order_type: str = "LIMIT",
-        variety: str = "regular",
-        exchange: str = "NSE",
-        product_type : str = "CNC",
-        amount_strict: bool = False,
-        enabled: bool = True,
-        cancel_old_order : bool = True
-    ) -> Dict:
-        """
-        Create a standardized signal dictionary.
-        """
-        return {
-            "action": action.upper(),
-            "symbol": symbol,
-            "quantity": quantity,
-            "price": round(float(price), 2),
-            "order_type": order_type,
-            "product_type" : product_type,
-            "variety": variety,
-            "exchange": exchange,
-            "amount_strict": amount_strict,
-            "enabled": enabled,
-            "run_before_time": run_before_time,
-            "run_after_time": run_after_time,
-            "is_time_between": is_time_between,
-            "run_on_days": run_on_days,
-            "timestamp": datetime.now().isoformat(),
-            "cancel_old_order" : cancel_old_order
-        }
-
-    def _create_buy_signal(
-        self,
-        symbol: str,
-        quantity: int,
-        price: float,
-        run_before_time: str = None,
-        run_after_time: str = None,
-        is_time_between: bool = False,
-        run_on_days: str = None,
-        order_type: str = "LIMIT",
-        variety: str = "regular",
-        exchange: str = "NSE",
-        product_type : str = "CNC",
-        amount_strict: bool = False,
-        enabled: bool = True,
-        cancel_old_order: bool = True
-    ) -> Dict: # pylint: disable=too-many-arguments
-        """
-        Create a standardized BUY signal.
-        """
-        return self._create_signal(
-            action="BUY",
-            symbol=symbol,
-            quantity=quantity,
-            price=price,
-            run_before_time=run_before_time,
-            run_after_time=run_after_time,
-            is_time_between=is_time_between,
-            run_on_days=run_on_days,
-            order_type=order_type,
-            variety=variety,
-            exchange=exchange,
-            product_type=product_type,
-            amount_strict=amount_strict,
-            enabled=enabled,
-            cancel_old_order=cancel_old_order
-        )
-
-    def _create_sell_signal(
-        self,
-        symbol: str,
-        quantity: int,
-        price: float,
-        run_before_time: str = None,
-        run_after_time: str = None,
-        is_time_between: bool = False,
-        run_on_days: str = None,
-        order_type: str = "LIMIT",
-        variety: str = "regular",
-        exchange: str = "NSE",
-        product_type : str = "CNC",
-        amount_strict: bool = False,
-        enabled: bool = True,
-        cancel_old_order: bool = True
-    ) -> Dict: # pylint: disable=too-many-arguments
-        """
-        Create a standardized SELL signal.
-        """
-        return self._create_signal(
-            action="SELL",
-            symbol=symbol,
-            quantity=quantity,
-            price=price,
-            run_before_time=run_before_time,
-            run_after_time=run_after_time,
-            is_time_between=is_time_between,
-            run_on_days=run_on_days,
-            order_type=order_type,
-            variety=variety,
-            exchange=exchange,
-            product_type=product_type,
-            amount_strict=amount_strict,
-            enabled=enabled,
-            cancel_old_order=cancel_old_order
-        )
 
     @property
     @abstractmethod
     def name(self) -> str:
-        """Return the name of the strategy"""
-        pass # pylint: disable=unnecessary-pass
+        """Return strategy name"""
+
+    # -----------------------------
+    # Helpers
+    # -----------------------------
     def set_broker(self, broker) -> None:
-        """Set broker instance"""
+        """set the broker"""
         self.broker = broker
+        self.data_client = HistoricalData(self.broker)
+    @property
+    def get_data_client(self) -> HistoricalData:
+        """_summary_
+
+        Raises:
+            RuntimeError: _description_
+
+        Returns:
+            HistoricalData: _description_
+        """
+        if self.data_client is None:
+            raise RuntimeError("Data client not initialized — call set_broker() first.")
+        return self.data_client
+
+    def _should_run_now(self) -> bool:
+        cfg = self.config
+        ist = pytz.timezone("Asia/Kolkata")
+        now = datetime.now(ist)
+        # Day filter
+        allowed_days = {int(d) for d in cfg.run_on_days.split(",")}
+        if now.weekday() not in allowed_days:
+            return False
+        before = datetime.strptime(cfg.run_before_time, self.TIME_FORMAT).time()
+        after = datetime.strptime(cfg.run_after_time, self.TIME_FORMAT).time()
+        current = now.time()
+        if cfg.is_time_between:
+            return after <= current <= before
+        return current <= after or current >= before
+

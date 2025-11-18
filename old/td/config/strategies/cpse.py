@@ -5,7 +5,7 @@ CPSE_CONFIG = {
     "ticker": "CPSEETF",
     "stock": "CPSEETF",
     "exchange": Zerodha.EXCHANGE_NSE,
-    "variety": Zerodha.VARIETY_AMO,
+    "variety": Zerodha.VARIETY_REGULAR,
     "order_type": Zerodha.ORDER_TYPE_LIMIT,
     "product_type": Zerodha.PRODUCT_CNC,
     "min_sell_qnt": 2,
