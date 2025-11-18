@@ -101,7 +101,32 @@ You can scan the QR code below or use the UPI ID directly to donate:
 
 UPI ID: raj0kumar00@oksbi   
 
-    Every contribution, big or small, helps me keep building and sharing more open-source tools. Thank you, my lord, for your support!
+    Every contribution, big or small, helps me keep building and sharing more open-source tools. Thank you, for your support!
+
+# ⚠️ Warning & Liability Disclaimer
+
+> **IMPORTANT — READ BEFORE USING THIS SOFTWARE**
+>
+> This automated trading bot may place real orders in your brokerage account.  
+> By using this software, you agree to the following:
+>
+> - **I (the developer) am NOT responsible** for any kind of loss — financial, technical, data-related, or otherwise.
+> - This bot is provided **for educational purposes only** and does **NOT** constitute financial advice.
+> - You are fully and solely responsible for:
+>   - All trading decisions  
+>   - All executed orders  
+>   - Your money and your account  
+>   - API key security  
+>   - Compliance with broker rules & local laws  
+> - There is **NO WARRANTY** of any kind — including but not limited to:
+>   - Accuracy  
+>   - Reliability  
+>   - Profitability  
+>   - Uptime  
+>   - Error-free operation  
+>
+> **Use this software entirely at your own risk.**  
+> By continuing, you accept 100% responsibility for all outcomes — good or bad.
 
 ## ⚠️ Disclaimer
 
