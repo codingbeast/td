@@ -1,0 +1,82 @@
+name: Weekly Instrument Downloader
+
+on:
+#   schedule:
+#     # Every Monday at 8:00 AM IST (02:30 UTC)
+#     - cron: "30 2 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  download-instruments:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install pandas requests
+
+      - name: Download Zerodha Instruments
+        run: |
+          python3 << 'EOF'
+          import requests
+          import pandas as pd
+          from io import StringIO
+          import os
+
+          url = "https://api.kite.trade/instruments"
+          print("Downloading instruments...")
+
+          response = requests.get(url)
+          response.raise_for_status()
+
+          df = pd.read_csv(StringIO(response.text))
+
+          # Filter required columns
+          df = df[[
+              "instrument_token",
+              "exchange_token",
+              "tradingsymbol",
+              "name",
+              "instrument_type",
+              "segment",
+              "exchange"
+          ]]
+
+          # Keep only EQ + valid names
+          df = df[
+              (df["instrument_type"] == "EQ") &
+              (df["name"].notna()) &
+              (df["name"].str.strip() != "")
+          ].reset_index(drop=True)
+
+          SAVE_PATH = "td/core/data/zerodha_instruments.csv"
+          df.to_csv(SAVE_PATH, index=False)
+
+          print("Saved:", SAVE_PATH)
+          EOF
+
+      - name: Commit & Push Updated File
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add td/core/data/zerodha_instruments.csv
+
+          if git diff --cached --quiet; then
+            echo "No changes in instrument file."
+            exit 0
+          fi
+
+          git commit -m "Auto-update: Zerodha instruments (weekly)"
+          git push
