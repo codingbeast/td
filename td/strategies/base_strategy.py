@@ -2,7 +2,6 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Dict, List, Any, Optional
-
 import pytz
 from td.core.data.historical import HistoricalData
 
@@ -104,8 +103,6 @@ class BaseStrategy(ABC):
         return self.data_client
 
     def _should_run_now(self) -> bool:
-        import pytz
-        from datetime import datetime
 
         cfg = self.config
         ist = pytz.timezone("Asia/Kolkata")
