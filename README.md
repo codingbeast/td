@@ -113,13 +113,13 @@ you can sponsor or hire me.
 I build:
 
 ✔ Automated trading bots  
-✔ Web Scraping
+✔ Web Scraping  
 ✔ Automating boring stuff  
 ✔ Backtesting automation  
-✔ Website and App Development
-✔ Social media pages management
+✔ Website and App Development  
+✔ Social media pages management  
 
-**Email:** advrter@gmail.com
+**Email:** advrter@gmail.com  
 **Telegram:** @anistdev  
 
 
