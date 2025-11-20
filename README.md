@@ -103,6 +103,26 @@ UPI ID: raj0kumar00@oksbi
 
     Every contribution, big or small, helps me keep building and sharing more open-source tools. Thank you, for your support!
 
+## ❤️ Sponsors / Hire Me
+
+This project is maintained in my personal time.  
+If you want **priority support**, **custom improvements**, or **dedicated development**,  
+you can sponsor or hire me.
+
+### 🛠 Hire me for custom work  
+I build:
+
+✔ Automated trading bots  
+✔ Web Scraping
+✔ Automating boring stuff  
+✔ Backtesting automation  
+✔ Website and App Development
+✔ Social media pages management
+
+**Email:** advrter@gmail.com
+**Telegram:** @anistdev  
+
+
 # ⚠️ Warning & Liability Disclaimer
 
 > **IMPORTANT — READ BEFORE USING THIS SOFTWARE**
