@@ -16,14 +16,16 @@ def buy_logic(strategy):
 
 def sell_logic(strategy):
     """sell logic"""
-    hold = get_holding(strategy)
-    if not hold:
+    holding = get_holding(strategy)
+    if not holding:
         return []
-
-    stock = get_stock_data(strategy)
-    qty = hold["quantity"]
-    price = stock["close"]
+    sell_price = max(
+        holding['average_price'] * strategy.config.profit_percentage,
+        holding['last_price']
+    )
+    sell_qnt = holding['quantity']
+    sell_qnt = sell_qnt if strategy.config.min_sell_qnt < sell_qnt else 0
 
     return [
-        build_sell_signal(strategy, qty, price)
+        build_sell_signal(strategy, sell_qnt, sell_price)
     ]
