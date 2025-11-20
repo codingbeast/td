@@ -1,9 +1,9 @@
 name: Weekly Instrument Downloader
 
 on:
-  schedule:
-    # Every Monday at 8:00 AM IST (02:30 UTC)
-    - cron: "30 2 * * 1"
+  # schedule:
+  #   # Every Monday at 8:00 AM IST (02:30 UTC)
+  #   - cron: "30 2 * * 1"
   workflow_dispatch:
 
 permissions:
