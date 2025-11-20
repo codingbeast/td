@@ -1,9 +1,11 @@
 """this module contains function to connect to zerodha broker"""
+# pylint: disable=broad-exception-caught
 import os
 import pickle
 import time
 import pyotp
 from jugaad_trader import Zerodha
+from td.core.logging.console_logger import log
 
 def get_kite(user_id: str, password: str, otp_secret_key: str) -> Zerodha:
     """
@@ -20,17 +22,18 @@ def get_kite(user_id: str, password: str, otp_secret_key: str) -> Zerodha:
     # Get the user's home directory
     home_dir = os.path.expanduser("~")
     # Construct the token path
-    token_path = os.path.join(home_dir, ".enctoken_zerodha.pkl") 
+    token_path = os.path.join(home_dir, ".enctoken_zerodha.pkl")
     if os.path.exists(token_path):
         with open(token_path, 'rb') as f:
             enctoken = pickle.load(f)
             kite = Zerodha()
             kite.enc_token = enctoken
             try:
-                profile = kite.profile()
+                kite.profile()
                 return kite
-            except:
-                pass
+            except Exception as e:
+                log_msg = f"[Zerodha Login Failed] Retrying login: {e}"
+                log.info(log_msg)
     while True:
         authkey = pyotp.TOTP(otp_secret_key)
         kite = Zerodha()
@@ -43,8 +46,9 @@ def get_kite(user_id: str, password: str, otp_secret_key: str) -> Zerodha:
             pickle.dump(kite.r.cookies['enctoken'], f)
         kite.enc_token = kite.r.cookies['enctoken']
         try:
-            profile = kite.profile()
+            kite.profile()
             return kite
-        except:
+        except Exception as e:
+            log_msg = f"[Zerodha Login Failed] Retrying in 60 seconds: {e}"
+            log.info(log_msg)
             time.sleep(60)
-            pass

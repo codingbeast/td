@@ -9,6 +9,7 @@ def get_stock_data(strategy):
 
     df = client.get_data(
         symbol=strategy.config.ticker,
+        exchange=strategy.config.exchange,
         from_date=today - timedelta(days=10),
         to_date=today,
         series="EQ"
