@@ -1,0 +1,22 @@
+{
+    "strategy": "Lahari",
+    "ticker": "CPSEETF",
+    "stock": "CPSEETF",
+    "exchange": "NSE",
+    "variety": "amo",
+    "order_type": "LIMIT",
+    "product_type": "CNC",
+    "min_sell_qnt": 30,
+    "uptrand_amount": 300,
+    "downtrand_amount": 800,
+    "profit_percentage": 1.03,
+    "run_before_time": "09:00:00",
+    "run_after_time": "15:00:00",
+    "is_time_between": false,
+    "run_on_days": "0,1,2,3,4",
+    "is_buy": true,
+    "cancel_old_order": false,
+    "amount_strict": false,
+    "enabled": true
+
+}
