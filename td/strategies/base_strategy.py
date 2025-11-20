@@ -104,17 +104,32 @@ class BaseStrategy(ABC):
         return self.data_client
 
     def _should_run_now(self) -> bool:
+        import pytz
+        from datetime import datetime
+
         cfg = self.config
         ist = pytz.timezone("Asia/Kolkata")
         now = datetime.now(ist)
-        # Day filter
+
+        # Day Filter
         allowed_days = {int(d) for d in cfg.run_on_days.split(",")}
         if now.weekday() not in allowed_days:
             return False
-        before = datetime.strptime(cfg.run_before_time, self.TIME_FORMAT).time()
-        after = datetime.strptime(cfg.run_after_time, self.TIME_FORMAT).time()
+
+        before = datetime.strptime(cfg.run_before_time, "%H:%M:%S").time()
+        after = datetime.strptime(cfg.run_after_time, "%H:%M:%S").time()
         current = now.time()
+
+        # AUTO-FIX: detect swapped times
+        # Example wrong input: before=09:00, after=15:00
+        # Correct interpretation: after=09:00, before=15:00
+        if after > before:
+            # swap times because window is reversed
+            after, before = before, after
+        # ---- RUN ONLY BETWEEN ----
         if cfg.is_time_between:
             return after <= current <= before
+
+        # ---- RUN OUTSIDE WINDOW ----
         return current <= after or current >= before
 
