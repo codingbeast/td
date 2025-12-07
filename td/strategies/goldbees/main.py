@@ -2,7 +2,7 @@
 from td.strategies.base_strategy import BaseStrategy
 from td.strategies.comman.utils import position_size, get_stock_data, get_holding
 from td.strategies.comman.logic import sell_logic
-from .logic import buy_logic
+from .logic import buy_logic,check_logic
 
 class GoldbeesStrategy(BaseStrategy):
     """_summary_
@@ -45,7 +45,8 @@ class GoldbeesStrategy(BaseStrategy):
             # Then SELL
             signals.extend(sell_logic(self))
         elif self.current_action == "check":
-            #todo implement check logic
-            pass
+            signals.extend(
+                check_logic(self)
+            )
 
         return signals
