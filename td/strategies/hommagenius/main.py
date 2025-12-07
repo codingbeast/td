@@ -1,6 +1,7 @@
 """/td/strategies/hommagenius/main.py"""
 from td.strategies.base_strategy import BaseStrategy
-from td.strategies.hommagenius.logic import buy_logic, sell_logic
+from td.strategies.hommagenius.logic import buy_logic
+from td.strategies.comman.logic import sell_logic
 from td.strategies.hommagenius.utils import get_stock_data_for_candle
 from td.core.logging.console_logger import log
 

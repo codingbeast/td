@@ -1,7 +1,8 @@
 """/td/strategies/lahari/utils.py"""
-from datetime import  date, timedelta
 from typing import Optional
+from pandas import DataFrame
 from td.core.logging.console_logger import log
+from td.strategies.comman.utils import get_stock_data_with_days
 
 def calculate_total_shares(strategy, total_price, stock_price):
     """calculate total share prices"""
@@ -9,31 +10,12 @@ def calculate_total_shares(strategy, total_price, stock_price):
         return int(total_price // stock_price) #math.floor
     return int(-(-total_price // stock_price))  # math.ceil
 
-def get_stock_data(strategy) -> list:
+def get_stock_data(strategy) -> DataFrame:
     """get stock data"""
-    client = strategy.get_data_client
-    today = date.today()
-
-    df = client.get_data(
-        symbol=strategy.config.ticker,
-        exchange=strategy.config.exchange,
-        from_date=today - timedelta(days=30),
-        to_date=today,
-        series="EQ"
-    )
+    df = get_stock_data_with_days(strategy, days=15)
     df.sort_values(by='DATE', ascending=True, inplace=True)
     last_15_rows = df.tail(15)
     return last_15_rows
-
-def get_holding(strategy):
-    """get holding """
-    if strategy.broker is None:
-        return None
-    holdings = strategy.broker.get_holdings()
-    return next(
-        (h for h in holdings if h["tradingsymbol"] == strategy.config.ticker),
-        None
-    )
 
 def is_stock_in_position(strategy) -> Optional[bool]:
     """get positions"""

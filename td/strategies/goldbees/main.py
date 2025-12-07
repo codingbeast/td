@@ -1,8 +1,8 @@
 """/td/strategies/goldbees/main.py"""
 from td.strategies.base_strategy import BaseStrategy
-from .logic import buy_logic, sell_logic
-from .utils import position_size, get_stock_data, get_holding
-
+from td.strategies.comman.utils import position_size, get_stock_data, get_holding
+from td.strategies.comman.logic import sell_logic
+from .logic import buy_logic
 
 class GoldbeesStrategy(BaseStrategy):
     """_summary_

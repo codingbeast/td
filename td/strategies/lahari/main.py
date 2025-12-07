@@ -1,6 +1,7 @@
 """/td/strategies/hommagenius/main.py"""
 from td.strategies.base_strategy import BaseStrategy
-from td.strategies.lahari.logic import buy_logic, sell_logic,check_logic
+from td.strategies.comman.logic import sell_logic
+from td.strategies.lahari.logic import buy_logic,check_logic
 from td.core.logging.console_logger import log
 from td.strategies.lahari.utils import get_stock_data
 

@@ -15,7 +15,6 @@ class BaseStrategy(ABC):
         self.broker = None
         self.data_client: Optional[HistoricalData] = None
         self.current_action = None
-        
 
     def _create_signal(self, action: str, quantity: int, price: float, **extra) -> Dict[str, Any]:
         """
@@ -56,11 +55,11 @@ class BaseStrategy(ABC):
 
     def _create_sell_signal(self, quantity: int, price: float, **extra):
         return self._create_signal("SELL", quantity, price, **extra)
-    
+
     def create_buy_signal(self, **kwargs):
         """this will use to genrate buy signal"""
         return self._create_buy_signal(**kwargs)
-    
+
     def create_sell_signal(self, **kwargs):
         """this will use to genrate sell signal"""
         return self._create_sell_signal(**kwargs)
@@ -129,4 +128,3 @@ class BaseStrategy(ABC):
 
         # ---- RUN OUTSIDE WINDOW ----
         return current <= after or current >= before
-

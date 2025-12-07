@@ -2,8 +2,8 @@
 from pandas import DataFrame
 from td.core.logging.console_logger import log
 from td.core.logging.google_drive import FlagManager
-from td.strategies.lahari.utils import calculate_total_shares,get_holding, is_stock_in_position
-from .signals import build_buy_signal, build_sell_signal,build_check_signal
+from td.strategies.lahari.utils import calculate_total_shares, is_stock_in_position
+from td.strategies.comman.signals import build_buy_signal
 
 
 LIMIT_PRICES_UP = [200, 500, 400, 300, 400, 500, 600, 700 ]
@@ -19,7 +19,7 @@ def _get_price_data(limit_prices : list[int], new_total : int):
 
 def _gen_up(strategy, price : int, flag : bool):
     """generate up stock data"""
-    limit_prices = _get_price_data(limit_prices = LIMIT_PRICES_UP, 
+    limit_prices = _get_price_data(limit_prices = LIMIT_PRICES_UP,
                                    new_total= strategy.config.uptrand_amount
                                    )
     final_prices = [price-0.3,  price - 0.6,
@@ -92,21 +92,6 @@ def buy_logic(strategy,get_stock_data):
         )
     return buy_build_container
 
-def sell_logic(strategy):
-    """sell logic"""
-    holding = get_holding(strategy)
-    if not holding:
-        return []
-    sell_price = max(
-        holding['average_price'] * strategy.config.profit_percentage,
-        holding['last_price']
-    )
-    sell_qnt = holding['quantity']
-    sell_qnt = sell_qnt if strategy.config.min_sell_qnt < sell_qnt else 0
-    return [
-        build_sell_signal(strategy,qty=sell_qnt, price=sell_price)
-    ]
-
 def check_logic(strategy,get_stock_data):
     """check logic"""
     is_in_position = is_stock_in_position(strategy)
@@ -117,7 +102,7 @@ def check_logic(strategy,get_stock_data):
     buy_build_container = []
     for stock in gen_stock_data:
         buy_build_container.append(
-            build_check_signal(strategy,qty=stock['qnt'], price=stock['price'])
+            build_buy_signal(strategy,qty=stock['qnt'], price=stock['price'],is_checked=True)
         )
         break #only single order should place on check point
     return buy_build_container
