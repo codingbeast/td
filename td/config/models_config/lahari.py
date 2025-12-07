@@ -9,6 +9,7 @@ class LahariConfig(StrategyConfig):
     """lahari strategy configuration"""
     ticker: str
     stock: str
+    amount: int = 0
     exchange: Exchange
     variety: Variety
     order_type: OrderType
