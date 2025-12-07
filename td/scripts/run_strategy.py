@@ -9,7 +9,7 @@ from td.core.order_manager import OrderManager
 from td.core.engine import Engine
 from td.core.logging.console_logger import log
 from td.core.logging.google_drive import GoogleDriveLogger
-from td.core.logging.telegram import TelegramNotifier
+from td.core.notifier_service import get_notifier
 from td.core.broker.zerodha import ZerodhaBroker
 
 
@@ -72,13 +72,53 @@ def load_broker():
         tpin_token=zerodha_tpin,
     )
 
+def run_module(package: str, name: str):
+    """
+    Dynamically import and run:
+        td.<package>.<name>
+    Requires that the module contains: main()
+    """
+    try:
+        module = importlib.import_module(f"td.{package}.{name.lower()}")
+    except Exception as e:
+        raise RuntimeError(f"Could not load module td.{package}.{name}: {e}") from e
+
+    if not hasattr(module, "main"):
+        raise RuntimeError(
+            f"Module td.{package}.{name} has no main() function"
+        )
+
+    return module.main()
+
 
 def main():
     """Run trading strategy."""
     parser = argparse.ArgumentParser(description="Run trading strategy")
-    parser.add_argument("--strategy", required=True, help="Strategy name (Goldbees, CPSE, etc.)")
-    parser.add_argument("--action", choices=["buy", "sell", "buy-sell", "check"], required=True)
+    parser.add_argument("--strategy", help="Strategy name (Goldbees, CPSE, etc.)")
+    parser.add_argument("--action", choices=["buy", "sell", "buy-sell", "check"])
+    parser.add_argument("--news", help="Run news script (ex: stocknews)")
+    parser.add_argument("--update", help="Run update script (ex: niftyupdate)")
     args = parser.parse_args()
+    # ----------------------------------------
+    # 1. NEWS
+    # ----------------------------------------
+    if args.news:
+        log.info("Running news module: %s", args.news)
+        run_module("news", args.news)
+        return
+
+    # ----------------------------------------
+    # 2. UPDATE
+    # ----------------------------------------
+    if args.update:
+        log.info("Running update module: %s", args.update)
+        run_module("core.update", args.update)
+        return
+    # ----------------------------------------
+    # 3. STRATEGY
+    # ----------------------------------------
+    if not args.strategy or not args.action:
+        raise ValueError("Strategy and action required unless using --news or --update")
 
     strategy_name = args.strategy.capitalize()
     log.info("Running strategy: %s", strategy_name)
@@ -110,11 +150,7 @@ def main():
     # Instantiate supporting components required by OrderManager
     drive_logger = GoogleDriveLogger()
     message_logger = log
-    notifier = TelegramNotifier(
-        token=os.getenv('TELEGRAM_BOT_TOKEN'),
-        chat_id=os.getenv('TELEGRAM_USER_ID'),
-    )
-
+    notifier = get_notifier()
     # Create OrderManager instance and execute orders
     order_manager = OrderManager(broker, drive_logger, message_logger, notifier)
     order_manager.execute_strategy_orders(strategy)

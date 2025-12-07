@@ -6,3 +6,6 @@ oauth2client
 PyDrive2
 psutil
 pandas
+pytz
+requests
+brotli
