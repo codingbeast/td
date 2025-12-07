@@ -2,6 +2,7 @@
 
 from datetime import datetime, timedelta
 from io import StringIO
+from typing import Optional
 import gzip
 import zlib
 import brotli
@@ -167,13 +168,13 @@ def print_yesterday_news(df):
             f"  DETAILS: {row['DETAILS']}\n"
         )
 
-def generate_telegram_message(df):
+def generate_telegram_message(df) -> Optional[str]:
     """Generate a beautiful Telegram-friendly message for NSE news."""
 
     yesterday_df = filter_yesterday_news(df)
 
     if yesterday_df.empty:
-        return "📢 *NSE Insider Trading Update*\n\nNo news for yesterday (IST)."
+        return None #"📢 *NSE Insider Trading Update*\n\nNo news for yesterday (IST)."
 
     lines = []
     lines.append("📢 *NSE Insider Trading Update (Yesterday)*\n")
@@ -200,4 +201,5 @@ def main():
     notifier = get_notifier()
     df_data = extract_news()
     message = generate_telegram_message(df_data)
-    notifier.send_message(message)
+    if message:
+        notifier.send_message(message)
