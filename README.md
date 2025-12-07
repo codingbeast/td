@@ -80,18 +80,23 @@ this will not run becouse we disabled the cron (so if you want to run this you h
 
 - **Target**: 2% profit (configurable)
 - **Strategy**:
-  - Buys at 0.30% below current price
+  - Buys at 0.30% below current price (manually set inside config)
   - Sells at 2% above average purchase price
   - Minimum sell quantity: 20 units
 
-### 🔵 CPSE ETF Algorithm
+### 🔵 Lahari Algorithm
 
 - **Target**: 3% profit
-- **Smart Trend Detection**:
+- **Strategy**:
   - Uses 15-day moving average to determine uptrend/downtrend
   - Adjusts buy levels based on market direction
   - Implements flag-based position management
-
+### 🟡 Hommagenius Algorithm
+- **Target**: 3% profit
+- **Strategy**:
+  - only run at nifty expiry day at aprox 3:00 PM
+  - check if closing price is lower then or not from old week
+  - buy if candle is not bull.
 ---
 ##  🙏 Support My Work
 If you find this project helpful and would like to support its development, consider buying me a coffee or making a small donation.  
