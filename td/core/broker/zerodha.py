@@ -103,7 +103,6 @@ class ZerodhaBroker(AbstractBroker):
         Get current holdings.
         """
         return self.kite.holdings()
-
     def get_margins(self) -> Any:
         """
         Get margin details.

@@ -1,7 +1,7 @@
 """/td/strategies/hommagenius/logic.py"""
 from td.core.logging.console_logger import log
 from .signals import build_buy_signal, build_sell_signal
-from .utils import get_stock_data, get_holding, get_stock_data_for_candle
+from .utils import get_holding, get_stock_data_for_candle
 
 def buy_logic(strategy):
     """buy logic"""

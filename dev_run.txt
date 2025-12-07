@@ -3,10 +3,10 @@ python -m td.scripts.run_strategy --strategy goldbees --action sell
 python -m td.scripts.run_strategy --strategy goldbees --action buy-sell check
 python -m td.scripts.run_strategy --strategy goldbees --action check
 
-python -m td.scripts.run_strategy --strategy cpse --action buy
-python -m td.scripts.run_strategy --strategy cpse --action sell
-python -m td.scripts.run_strategy --strategy cpse --action buy-sell check
-python -m td.scripts.run_strategy --strategy cpse --action check
+python -m td.scripts.run_strategy --strategy lahari --action buy
+python -m td.scripts.run_strategy --strategy lahari --action sell
+python -m td.scripts.run_strategy --strategy lahari --action buy-sell check
+python -m td.scripts.run_strategy --strategy lahari --action check
 
 python -m td.scripts.run_strategy --strategy hommagenius --action buy
 python -m td.scripts.run_strategy --strategy hommagenius --action sell

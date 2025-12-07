@@ -1,9 +1,0 @@
-{
-    "telegram_token": "YOUR_TELEGRAM_TOKEN",
-    "telegram_user_id": "YOUR_TELEGRAM_USER_ID",
-    "zerodha_credentials": {
-        "user_id": "YOUR_ZERODHA_ID",
-        "password": "YOUR_ZERODHA_PASSWORD",
-        "tpin_token": "YOUR_ZERODHA_TPIN"
-    }
-}

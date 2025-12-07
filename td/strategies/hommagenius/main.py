@@ -52,5 +52,5 @@ class HommageniusStrategy(BaseStrategy):
         elif self.current_action == "check":
             log_msg = """check logic is not required for Hommagenius strategy"""
             log.info(log_msg)
-        print("Hommagenius strategy generating signals...")
+        log.info("Hommagenius strategy generating signals...")
         return signals
