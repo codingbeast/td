@@ -10,7 +10,9 @@ on:
 jobs:
   run-news-script:
     runs-on: ubuntu-latest
-
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }} 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
