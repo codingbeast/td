@@ -201,4 +201,3 @@ def main():
     df_data = extract_news()
     message = generate_telegram_message(df_data)
     notifier.send_message(message)
-
