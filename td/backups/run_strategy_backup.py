@@ -16,39 +16,42 @@ from td.core.broker.zerodha import ZerodhaBroker
 
 def load_strategy_config(name: str):
     """
-    Load single config OR multiple configs if a folder is provided:
-    - config/strategies/<name>.json (single)
-    - config/strategies/<name>/*.json (multi)
+    Load strategy configuration from:
+        config/strategies/<name>.json
+    And validate using:
+        td/config/models_config/<name>.py
     """
 
+    # Resolve project root
     start_path = Path(__file__).resolve().parent
     project_root = start_path
 
+    # Walk upward until we find "config"
     while not (project_root / "config").exists() and project_root != project_root.parent:
         project_root = project_root.parent
 
+    if not (project_root / "config").exists():
+        raise RuntimeError("Could not locate 'config' directory!")
+
     config_dir = project_root / "config" / "strategies"
-
-    # Check if it's a folder-based multi strategy
-    folder_path = config_dir / name.lower()
-    if folder_path.exists() and folder_path.is_dir():
-        configs = []
-        for file in folder_path.glob("*.json"):
-            raw = json.loads(file.read_text())
-            model_module = importlib.import_module(f"td.config.models_config.{name.lower()}")
-            config_class = getattr(model_module, f"{name.capitalize()}Config")
-            configs.append(config_class(**raw))
-        return configs   # List of configs for multi
-
-    # Else fallback to normal single JSON
     json_path = config_dir / f"{name.lower()}.json"
 
     if not json_path.exists():
-        raise FileNotFoundError(f"No JSON or folder found for strategy: {name}")
+        raise FileNotFoundError(
+            f"Config JSON not found: {json_path}\n"
+            f"Expected: config/strategies/{name.lower()}.json"
+        )
 
-    raw = json.loads(json_path.read_text())
-    model_module = importlib.import_module(f"td.config.models_config.{name.lower()}")
-    config_class = getattr(model_module, f"{name.capitalize()}Config")
+    # Load raw JSON
+    raw = json.loads(json_path.read_text(encoding="utf-8"))
+
+    # Import Pydantic Config Model dynamically
+    try:
+        model_module = importlib.import_module(f"td.config.models_config.{name.lower()}")
+        config_class = getattr(model_module, f"{name.capitalize()}Config")
+    except Exception as e:
+        raise ValueError(f"Could not load Pydantic model for {name}: {e}") from e
+
     return config_class(**raw)
 
 
@@ -134,44 +137,37 @@ def main():
     strategy_name = args.strategy.capitalize()
     log.info("Running strategy: %s", strategy_name)
 
-    # 1. Load config(s) (single or multiple)
-    configs = load_strategy_config(strategy_name)
+    # 1. Load config (already validated)
+    config_model = load_strategy_config(strategy_name)
 
     # 2. Load broker
     broker = load_broker()
 
-    # 3. Instantiate supporting components required by OrderManager (ONCE)
+    # 3. Placeholder for market data
+    data = {}
+
+    # 4. Initialize engine
+    engine = Engine(config_model, data)
+
+    # 5. Create strategy (no arguments needed)
+    strategy = engine.create_strategy()
+
+    # 6. Attach broker & action
+    strategy.set_broker(broker)
+    strategy.current_action = args.action
+
+    # 7. Run strategy
+    log.info("Executing action: %s", args.action)
+    # signal = strategy.generate_signals()
+    # log.info("Final signal: %s", signal)
+
+    # Instantiate supporting components required by OrderManager
     drive_logger = GoogleDriveLogger()
     message_logger = log
     notifier = get_notifier()
-    order_manager: OrderManager = OrderManager(broker, drive_logger, message_logger, notifier)
-
-    # 4. Normalize configs to a list
-    if isinstance(configs, list):
-        config_list = configs
-    else:
-        config_list = [configs]
-
-    # 5. Run strategy for each config
-    for config_model in config_list:
-        log.info("Running sub-config for: %s", getattr(config_model, "ticker", "unknown"))
-
-        # Placeholder for market data
-        data = {}
-
-        # Initialize engine
-        engine = Engine(config_model, data)
-
-        # Create strategy
-        strategy = engine.create_strategy()
-
-        # Attach broker & action
-        strategy.set_broker(broker)
-        strategy.current_action = args.action
-
-        # Execute orders via OrderManager
-        log.info("Executing action: %s", args.action)
-        order_manager.execute_strategy_orders(strategy)
+    # Create OrderManager instance and execute orders
+    order_manager = OrderManager(broker, drive_logger, message_logger, notifier)
+    order_manager.execute_strategy_orders(strategy)
 
 
 if __name__ == "__main__":
